@@ -1,11 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ImportController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DeviceController;
 
-Route::get('/', function () {
-    return view('welcome');
-});
 
-Route::get('/import', [ImportController::class, 'index']);
-Route::post('/import', [ImportController::class, 'import'])->name('import');
+Route::get('/', [DashboardController::class,'index']);
+
+Route::get('/devices', [DeviceController::class,'index']);
