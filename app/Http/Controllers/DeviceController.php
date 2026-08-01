@@ -12,18 +12,25 @@ class DeviceController extends Controller
         $devices = Device::query();
 
         // Search
-        if ($request->search) {
-            $devices->where('name', 'like', '%' . $request->search . '%');
+        if ($request->filled('search')) {
+            $devices->where('device_name', 'like', '%' . $request->search . '%');
         }
 
-        // Filter lokasi
-        if ($request->location) {
+        // Filter Location
+        if ($request->filled('location')) {
             $devices->where('location', $request->location);
         }
 
+        $devices = $devices
+            ->orderBy('device_name')
+            ->paginate(15);
 
-        return view('devices.index', [
-            'devices' => $devices->paginate(15)
-        ]);
+        $locations = Device::select('location')
+            ->whereNotNull('location')
+            ->distinct()
+            ->orderBy('location')
+            ->pluck('location');
+
+        return view('devices.index', compact('devices', 'locations'));
     }
 }
