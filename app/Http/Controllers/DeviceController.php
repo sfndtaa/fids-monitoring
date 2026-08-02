@@ -32,5 +32,6 @@ class DeviceController extends Controller
             ->pluck('location');
 
         return view('devices.index', compact('devices', 'locations'));
+        
     }
 }

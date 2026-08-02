@@ -29,7 +29,7 @@ return new class extends Migration
                 'online',
                 'offline',
                 'warning',
-                'maintenance'
+                'maintenance' 
             ])->default('offline');
 
             $table->integer('response_time')->nullable();
