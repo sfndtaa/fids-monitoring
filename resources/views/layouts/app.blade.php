@@ -65,19 +65,19 @@
 
         <!-- Logo -->
 
-        <div class="h-24 px-6 flex items-center justify-between border-b border-slate-800">
+        <div class="h-24 px-5 flex items-center justify-between border-b border-slate-800">
 
             <div>
 
                 <h1 class="logo-text text-2xl font-bold">
 
-                    InJourney
+                    InJourney Airport
 
                 </h1>
 
                 <p class="logo-desc text-slate-400 text-sm">
 
-                    Airport Flight Information Display Monitoring
+                    Flight Information Display Monitoring
 
                 </p>
 
