@@ -21,7 +21,7 @@ return new class extends Migration
 
             $table->string('ip_address')->unique();
 
-            // Subnet & Gateway juga boleh kosong
+            // subnet & gateway-nya juga boleh kosongg
             $table->string('subnet')->nullable();
             $table->string('gateway')->nullable();
 

@@ -21,6 +21,8 @@ class ImportController extends Controller
 
         Excel::import(new DeviceImport, $request->file('file'));
 
-        return back()->with('success', 'Data berhasil diimport!');
+        return redirect()
+            ->back()
+            ->with('success', 'Data device berhasil diimport.');
     }
 }

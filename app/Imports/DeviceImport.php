@@ -10,12 +10,23 @@ class DeviceImport implements ToModel, WithHeadingRow
 {
     public function model(array $row)
     {
-        return new Device([
-            'device_name' => $row['device_name'],
-            'location' => $row['location'],
-            'ip_address' => $row['ip_address'],
-            'subnet' => $row['subnet_baru'],
-            'gateway' => $row['gateway_baru'],
-        ]);
+        if (
+            empty($row['device_name']) &&
+            empty($row['ip_address'])
+        ) {
+            return null;
+        }
+
+        return Device::updateOrCreate(
+            [
+                'ip_address' => trim($row['ip_address'] ?? ''),
+            ],
+            [
+                'device_name' => trim($row['device_name'] ?? ''),
+                'location' => trim($row['location'] ?? ''),
+                'subnet' => trim($row['subnet_baru'] ?? ''),
+                'gateway' => trim($row['gateway_baru'] ?? ''),
+            ]
+        );
     }
 }

@@ -9,21 +9,28 @@ class DeviceController extends Controller
 {
     public function index(Request $request)
     {
-        $devices = Device::query();
+        $query = Device::query();
 
-        // Search
+        // Search Device Name, IP Address, or Location
         if ($request->filled('search')) {
-            $devices->where('device_name', 'like', '%' . $request->search . '%');
+            $search = $request->search;
+
+            $query->where(function ($q) use ($search) {
+                $q->where('device_name', 'like', "%{$search}%")
+                    ->orWhere('ip_address', 'like', "%{$search}%")
+                    ->orWhere('location', 'like', "%{$search}%");
+            });
         }
 
         // Filter Location
         if ($request->filled('location')) {
-            $devices->where('location', $request->location);
+            $query->where('location', $request->location);
         }
 
-        $devices = $devices
+        $devices = $query
             ->orderBy('device_name')
-            ->paginate(15);
+            ->paginate(15)
+            ->withQueryString();
 
         $locations = Device::select('location')
             ->whereNotNull('location')
@@ -31,7 +38,9 @@ class DeviceController extends Controller
             ->orderBy('location')
             ->pluck('location');
 
-        return view('devices.index', compact('devices', 'locations'));
-        
+        return view('devices.index', compact(
+            'devices',
+            'locations'
+        ));
     }
 }
