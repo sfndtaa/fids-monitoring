@@ -8,7 +8,13 @@ class NotificationController extends Controller
 {
     public function index()
     {
-        $notifications = DeviceNotification::latest()
+        DeviceNotification::where('is_read', false)
+            ->update([
+                'is_read' => true
+            ]);
+
+        $notifications = DeviceNotification::with('device')
+            ->latest()
             ->paginate(15);
 
         return view('notifications.index', compact('notifications'));

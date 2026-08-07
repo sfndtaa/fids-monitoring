@@ -16,7 +16,7 @@ class Device extends Model
         'response_time',
         'last_ping',
     ];
-   
+    
     public function logs()
     {
         return $this->hasMany(DeviceLog::class);

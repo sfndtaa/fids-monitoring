@@ -1,3 +1,9 @@
+@php
+use App\Models\DeviceNotification;
+
+$unreadNotifications = DeviceNotification::where('is_read', false)->count();
+@endphp
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -179,6 +185,7 @@
 
         </nav>
 
+        
         <!-- Logout -->
         <div class="p-3 border-t border-slate-800">
             <button type="button" class="menu-item w-full flex items-center gap-3.5 rounded-xl px-3.5 py-3 text-slate-300 hover:bg-slate-800 transition-colors">
@@ -218,15 +225,31 @@
             </div>
 
             <div class="flex items-center gap-4">
-                <button type="button" class="w-10 h-10 rounded-xl hover:bg-slate-100 transition flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2a2 2 0 01-.6 1.4L4 17h5m6 0a3 3 0 11-6 0h6Z"/>
+                <!-- Icon Notifikasi tunggal dengan link ke halaman notifikasi -->
+                <a href="{{ route('notifications') }}"
+                    class="relative w-10 h-10 rounded-xl hover:bg-slate-100 transition flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                        class="w-5 h-5 text-slate-600"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2a2 2 0 01-.6 1.4L4 17h5m6 0a3 3 0 11-6 0h6Z"/>
                     </svg>
-                </button>
 
+                    @if($unreadNotifications)
+                        <span class="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 bg-red-600 rounded-full text-white text-[11px] flex items-center justify-center font-semibold">
+                            {{ $unreadNotifications }}
+                        </span>
+                    @endif
+                </a>
+
+                <!-- Profile Avatar -->
                 <div class="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm">
                     A
-                </div>
+                </div> 
             </div>
         </header>
 
@@ -272,6 +295,20 @@
                 main.classList.remove('collapsed-margin');
                 header.classList.remove('collapsed-left');
                 localStorage.setItem('sidebarCollapsed', 'false');
+            }
+        });
+
+        // Mencegah Tombol Enter di manapun memicu Toggle Sidebar
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && document.activeElement === toggle) {
+                e.preventDefault();
+            }
+        });
+    });
+</script>
+
+</body>
+</html>
             }
         });
 

@@ -8,9 +8,13 @@ class DeviceNotification extends Model
 {
     protected $fillable = [
         'device_id',
-        'message',
         'type',
+        'message',
         'is_read',
+    ];
+
+    protected $casts = [
+        'is_read' => 'boolean',
     ];
 
     public function device()
