@@ -2,114 +2,114 @@
 
 @section('content')
 
-<div class="max-w-3xl mx-auto">
+<div class="max-w-2xl mx-auto text-xs">
 
-    <div class="bg-white rounded-2xl shadow-sm p-8">
+    <div class="bg-white rounded-lg shadow-xs border border-slate-300 p-6">
 
-        <h1 class="text-3xl font-bold text-slate-800 mb-6">
-            Add User
-        </h1>
+        <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
+            <div>
+                <h1 class="text-lg font-bold text-slate-800">
+                    Add New User
+                </h1>
+                <p class="text-slate-500 text-[11px] mt-0.5">
+                    Create an administrator or user account.
+                </p>
+            </div>
+            <a href="{{ route('users.index') }}" class="text-xs text-emerald-700 hover:text-emerald-900 font-semibold">
+                &larr; Back to Users
+            </a>
+        </div>
 
         <form action="{{ route('users.store') }}" method="POST">
 
             @csrf
 
-            <div class="grid gap-6">
+            <div class="grid gap-4">
 
                 <div>
-
-                    <label class="block mb-2 font-medium">
+                    <label class="block mb-1 text-[11px] font-semibold uppercase tracking-wider text-slate-600">
                         Full Name
                     </label>
-
                     <input
                         type="text"
                         name="name"
                         value="{{ old('name') }}"
-                        class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none">
-
+                        required
+                        placeholder="e.g. John Doe"
+                        class="w-full rounded-md border border-slate-300 px-3 py-2 text-xs focus:ring-1 focus:ring-emerald-500 outline-none">
                     @error('name')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        <p class="text-red-500 text-[10px] mt-1">{{ $message }}</p>
                     @enderror
-
                 </div>
 
                 <div>
-
-                    <label class="block mb-2 font-medium">
-                        Email
+                    <label class="block mb-1 text-[11px] font-semibold uppercase tracking-wider text-slate-600">
+                        Email Address
                     </label>
-
                     <input
                         type="email"
                         name="email"
                         value="{{ old('email') }}"
-                        class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none">
-
+                        required
+                        placeholder="e.g. john@example.com"
+                        class="w-full rounded-md border border-slate-300 px-3 py-2 text-xs focus:ring-1 focus:ring-emerald-500 outline-none">
                     @error('email')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        <p class="text-red-500 text-[10px] mt-1">{{ $message }}</p>
                     @enderror
-
                 </div>
 
                 <div>
-
-                    <label class="block mb-2 font-medium">
+                    <label class="block mb-1 text-[11px] font-semibold uppercase tracking-wider text-slate-600">
                         Role
                     </label>
-
                     <select
                         name="role"
-                        class="w-full rounded-xl border border-slate-300 px-4 py-3">
-
-                        <option value="technician">
-                            Technician
+                        required
+                        class="w-full rounded-md border border-slate-300 px-3 py-2 text-xs focus:ring-1 focus:ring-emerald-500 outline-none">
+                        <option value="user" {{ old('role') === 'user' ? 'selected' : '' }}>
+                            User (Standard Access)
                         </option>
-
-                        <option value="admin">
-                            Admin
+                        <option value="technician" {{ old('role') === 'technician' ? 'selected' : '' }}>
+                            Technician (Field Staff)
                         </option>
-
+                        <option value="admin" {{ old('role') === 'admin' ? 'selected' : '' }}>
+                            Admin (Full Access & User Management)
+                        </option>
                     </select>
-
+                    @error('role')
+                        <p class="text-red-500 text-[10px] mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <div>
-
-                    <label class="block mb-2 font-medium">
+                    <label class="block mb-1 text-[11px] font-semibold uppercase tracking-wider text-slate-600">
                         Password
                     </label>
-
                     <input
                         type="password"
                         name="password"
-                        class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none">
-
+                        required
+                        placeholder="Minimum 6 characters"
+                        class="w-full rounded-md border border-slate-300 px-3 py-2 text-xs focus:ring-1 focus:ring-emerald-500 outline-none">
                     @error('password')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        <p class="text-red-500 text-[10px] mt-1">{{ $message }}</p>
                     @enderror
-
                 </div>
 
             </div>
 
-            <div class="flex justify-end gap-3 mt-8">
-
+            <div class="flex justify-end gap-2 mt-6 pt-3 border-t border-slate-100">
                 <a
                     href="{{ route('users.index') }}"
-                    class="px-5 py-3 rounded-xl bg-slate-200 hover:bg-slate-300">
-
+                    class="px-4 py-1.5 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">
                     Cancel
-
                 </a>
 
                 <button
-                    class="px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white">
-
+                    type="submit"
+                    class="px-4 py-1.5 rounded-md bg-[#15803d] hover:bg-[#16a34a] text-white text-xs font-semibold shadow-xs transition">
                     Save User
-
                 </button>
-
             </div>
 
         </form>

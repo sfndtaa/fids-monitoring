@@ -8,7 +8,8 @@ class DeviceLog extends Model
 {
     protected $fillable = [
         'device_id',
-        'status',
+        'old_status',
+        'new_status',
         'response_time',
         'checked_at'
     ];
@@ -16,6 +17,14 @@ class DeviceLog extends Model
     protected $casts = [
         'checked_at' => 'datetime',
     ];
+
+    /**
+     * Backward compatibility accessor for $log->status
+     */
+    public function getStatusAttribute(): ?string
+    {
+        return $this->new_status;
+    }
 
     public function device()
     {

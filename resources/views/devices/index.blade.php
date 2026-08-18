@@ -2,203 +2,154 @@
 
 @section('content')
 
-<div class="space-y-6">
+<div class="space-y-4">
 
-    <div>
-        <h1 class="text-3xl font-bold text-slate-800">
-            Devices
-        </h1>
+    <div class="flex flex-wrap items-center justify-between gap-3">
+        <div>
+            <h1 class="text-xl font-bold text-slate-800 tracking-tight">
+                Device Inventory
+            </h1>
+            <p class="text-slate-500 text-xs mt-0.5">
+                All registered Airport Flight Information Display devices.
+            </p>
+        </div>
 
-        <p class="text-slate-500 mt-1">
-            Monitor all registered Airport Information Display devices.
-        </p>
+        <a href="{{ route('monitoring') }}"
+            class="px-3.5 py-1.5 rounded-lg bg-[#15803d] hover:bg-[#16a34a] text-white text-xs font-semibold shadow-xs transition flex items-center gap-1.5">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+            </svg>
+            <span>Open Network Monitoring</span>
+        </a>
     </div>
 
-    <form method="GET" class="bg-white rounded-2xl shadow-sm p-5 flex flex-wrap items-center gap-4">
+    <!-- Search & Location Filter -->
+    <form method="GET" class="bg-white rounded-lg shadow-xs border border-slate-200 p-3 flex flex-wrap items-center gap-3">
 
-        <input
-            type="text"
-            name="search"
-            value="{{ request('search') }}"
-            placeholder="Search device, IP, or location..."
-            class="flex-1 min-w-[260px] rounded-xl border border-slate-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <div class="relative flex-1 min-w-[240px]">
+            <span class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+            </span>
+            <input
+                type="text"
+                name="search"
+                value="{{ request('search') }}"
+                placeholder="Search device name, IP, or location..."
+                class="w-full pl-8 pr-3 py-1.5 text-xs rounded-md border border-slate-300 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+        </div>
 
         <select
             name="location"
-            class="rounded-xl border border-slate-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
-
-            <option value="">All Locations</option>
-
+            class="text-xs rounded-md border border-slate-300 px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+            <option value="">All Locations / Branches</option>
             @foreach($locations as $location)
-
                 <option
                     value="{{ $location }}"
                     {{ request('location') == $location ? 'selected' : '' }}>
-
                     {{ $location }}
-
                 </option>
-
             @endforeach
-
         </select>
 
         <button
             type="submit"
-            class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl transition">
-
-            Search
-
+            class="bg-[#15803d] hover:bg-[#16a34a] text-white px-4 py-1.5 text-xs font-semibold rounded-md transition">
+            Filter
         </button>
 
+        @if(request('search') || request('location'))
         <a
             href="{{ route('devices') }}"
-            class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-6 py-3 rounded-xl transition">
-
+            class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-3 py-1.5 text-xs font-medium rounded-md transition">
             Reset
-
         </a>
+        @endif
 
     </form>
 
-    <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
-
-        <table class="min-w-full">
-
-            <thead class="bg-slate-100 text-slate-700">
-
-                <tr>
-
-                    <th class="text-left px-6 py-4 font-semibold">
-                        Device Name
-                    </th>
-
-                    <th class="text-left px-6 py-4 font-semibold">
-                        Location
-                    </th>
-
-                    <th class="text-left px-6 py-4 font-semibold">
-                        IP Address
-                    </th>
-
-                    <th class="text-center px-6 py-4 font-semibold">
-                        Status
-                    </th>
-
-                    <th class="text-center px-6 py-4 font-semibold">
-                        Response
-                    </th>
-
-                    <th class="text-center px-6 py-4 font-semibold">
-                        Last Ping
-                    </th>
-
-                </tr>
-
-            </thead>
-
-            <tbody>
-
-                @forelse($devices as $device)
-
-                    <tr class="border-t hover:bg-slate-50 transition">
-
-                        <td class="px-6 py-4 font-medium text-slate-800">
+    <!-- Table of Devices -->
+    <div class="bg-white rounded-lg shadow-xs border border-slate-200 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-xs">
+                <thead class="bg-slate-100 text-slate-600 border-b border-slate-200 font-semibold uppercase">
+                    <tr>
+                        <th class="text-left px-4 py-3">Device Name</th>
+                        <th class="text-left px-4 py-3">Location</th>
+                        <th class="text-left px-4 py-3">IP Address</th>
+                        <th class="text-center px-4 py-3">Status</th>
+                        <th class="text-center px-4 py-3">Response Time</th>
+                        <th class="text-center px-4 py-3">Last Checked</th>
+                        <th class="text-center px-4 py-3">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @forelse($devices as $device)
+                    <tr class="hover:bg-slate-50 transition cursor-pointer" onclick="window.location.href='{{ route('devices.show', $device->id) }}'">
+                        <td class="px-4 py-2.5 font-bold text-slate-800">
                             {{ $device->device_name }}
                         </td>
 
-                        <td class="px-6 py-4">
+                        <td class="px-4 py-2.5 text-slate-600">
                             {{ $device->location ?? '-' }}
                         </td>
 
-                        <td class="px-6 py-4 font-mono text-sm">
+                        <td class="px-4 py-2.5 font-mono text-slate-700 select-all">
                             {{ $device->ip_address }}
                         </td>
 
-                        <td class="px-6 py-4 text-center">
-
+                        <td class="px-4 py-2.5 text-center">
                             @if($device->status == 'online')
-
-                                <span class="px-3 py-1 rounded-full bg-green-100 text-green-700 text-sm font-medium">
+                                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-100 text-emerald-800 border border-emerald-200">
                                     Online
                                 </span>
-
                             @elseif($device->status == 'warning')
-
-                                <span class="px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 text-sm font-medium">
+                                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-amber-100 text-amber-800 border border-amber-200">
                                     Warning
                                 </span>
-
                             @elseif($device->status == 'maintenance')
-
-                                <span class="px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-sm font-medium">
+                                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-slate-100 text-slate-700 border border-slate-200">
                                     Maintenance
                                 </span>
-
                             @else
-
-                                <span class="px-3 py-1 rounded-full bg-red-100 text-red-700 text-sm font-medium">
+                                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-rose-100 text-rose-800 border border-rose-200">
                                     Offline
                                 </span>
-
                             @endif
-
                         </td>
 
-                        <td class="px-6 py-4 text-center">
-
-                            @if($device->response_time)
-
-                                {{ $device->response_time }} ms
-
-                            @else
-
-                                -
-
-                            @endif
-
+                        <td class="px-4 py-2.5 text-center font-mono">
+                            {{ $device->response_time ? $device->response_time . ' ms' : '-' }}
                         </td>
 
-                        <td class="px-6 py-4 text-center text-sm text-slate-500">
-
-                            @if($device->last_ping)
-
-                                {{ \Carbon\Carbon::parse($device->last_ping)->format('d M Y H:i') }}
-
-                            @else
-
-                                Never
-
-                            @endif
-
+                        <td class="px-4 py-2.5 text-center text-slate-500 font-mono">
+                            {{ $device->last_ping ? \Carbon\Carbon::parse($device->last_ping)->format('d M Y H:i:s') : 'Never' }}
                         </td>
 
+                        <td class="px-4 py-2.5 text-center" onclick="event.stopPropagation()">
+                            <a href="{{ route('devices.show', $device->id) }}"
+                                class="px-2 py-1 rounded bg-[#15803d] hover:bg-[#16a34a] text-white text-[10px] font-medium transition">
+                                Detail
+                            </a>
+                        </td>
                     </tr>
-
-                @empty
-
+                    @empty
                     <tr>
-
-                        <td colspan="6" class="text-center py-10 text-slate-500">
-
+                        <td colspan="7" class="text-center py-8 text-slate-400">
                             No devices found.
-
                         </td>
-
                     </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
 
-                @endforelse
-
-            </tbody>
-
-        </table>
-
-    </div>
-
-    <div class="flex justify-end">
-
-        {{ $devices->links() }}
-
+        @if($devices->hasPages())
+        <div class="px-4 py-3 border-t border-slate-200 bg-slate-50">
+            {{ $devices->links() }}
+        </div>
+        @endif
     </div>
 
 </div>

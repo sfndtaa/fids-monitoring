@@ -8,15 +8,19 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('device_notifications', function (Blueprint $table) {
-            $table->boolean('is_read')->default(false)->after('type');
-        });
+        if (!Schema::hasColumn('device_notifications', 'is_read')) {
+            Schema::table('device_notifications', function (Blueprint $table) {
+                $table->boolean('is_read')->default(false);
+            });
+        }
     }
 
     public function down(): void
     {
-        Schema::table('device_notifications', function (Blueprint $table) {
-            $table->dropColumn('is_read');
-        });
+        if (Schema::hasColumn('device_notifications', 'is_read')) {
+            Schema::table('device_notifications', function (Blueprint $table) {
+                $table->dropColumn('is_read');
+            });
+        }
     }
 };

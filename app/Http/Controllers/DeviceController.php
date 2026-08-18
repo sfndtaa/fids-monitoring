@@ -7,6 +7,9 @@ use Illuminate\Http\Request;
 
 class DeviceController extends Controller
 {
+    /**
+     * Display a listing of devices.
+     */
     public function index(Request $request)
     {
         $query = Device::query();
@@ -27,6 +30,11 @@ class DeviceController extends Controller
             $query->where('location', $request->location);
         }
 
+        // Filter Status
+        if ($request->filled('status') && in_array($request->status, ['online', 'offline', 'warning', 'maintenance'])) {
+            $query->where('status', $request->status);
+        }
+
         $devices = $query
             ->orderBy('device_name')
             ->paginate(15)
@@ -34,6 +42,7 @@ class DeviceController extends Controller
 
         $locations = Device::select('location')
             ->whereNotNull('location')
+            ->where('location', '!=', '')
             ->distinct()
             ->orderBy('location')
             ->pluck('location');
@@ -41,6 +50,28 @@ class DeviceController extends Controller
         return view('devices.index', compact(
             'devices',
             'locations'
+        ));
+    }
+
+    /**
+     * Display the specified device details.
+     */
+    public function show(Device $device)
+    {
+        $logs = $device->logs()
+            ->latest('checked_at')
+            ->take(20)
+            ->get();
+
+        $notifications = $device->notifications()
+            ->latest()
+            ->take(10)
+            ->get();
+
+        return view('devices.show', compact(
+            'device',
+            'logs',
+            'notifications'
         ));
     }
 }
