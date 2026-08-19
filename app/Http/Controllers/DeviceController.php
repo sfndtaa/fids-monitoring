@@ -7,9 +7,7 @@ use Illuminate\Http\Request;
 
 class DeviceController extends Controller
 {
-    /**
-     * Display a listing of devices.
-     */
+ 
     public function index(Request $request)
     {
         $query = Device::query();

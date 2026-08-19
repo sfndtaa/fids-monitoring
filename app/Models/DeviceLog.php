@@ -18,9 +18,6 @@ class DeviceLog extends Model
         'checked_at' => 'datetime',
     ];
 
-    /**
-     * Backward compatibility accessor for $log->status
-     */
     public function getStatusAttribute(): ?string
     {
         return $this->new_status;

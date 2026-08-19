@@ -9,9 +9,7 @@ use Illuminate\Http\Request;
 
 class MonitoringController extends Controller
 {
-    /**
-     * Display the Monitoring dashboard (Tree View / Table View).
-     */
+    
     public function index(Request $request)
     {
         $statusFilter = $request->get('status', 'all');
@@ -19,7 +17,6 @@ class MonitoringController extends Controller
         $search = $request->get('search');
         $viewMode = $request->get('view', 'tree'); // 'tree' or 'table'
 
-        // Base query for stats
         $allDevices = Device::orderBy('device_name')->get();
         $stats = [
             'total' => $allDevices->count(),
@@ -29,7 +26,6 @@ class MonitoringController extends Controller
             'maintenance' => $allDevices->where('status', 'maintenance')->count(),
         ];
 
-        // Unique dynamic locations from DB
         $locations = Device::select('location')
             ->whereNotNull('location')
             ->where('location', '!=', '')
@@ -37,7 +33,6 @@ class MonitoringController extends Controller
             ->orderBy('location')
             ->pluck('location');
 
-        // Filtered query for devices
         $query = Device::query();
 
         if ($statusFilter !== 'all' && in_array($statusFilter, ['online', 'offline', 'warning', 'maintenance'])) {
@@ -62,16 +57,13 @@ class MonitoringController extends Controller
             });
         }
 
-        // For Table view with pagination, or Tree view with grouped items
         $devices = (clone $query)->orderBy('device_name')->get();
 
-        // Paginated devices for Table View
         $tableDevices = (clone $query)
             ->orderBy('device_name')
             ->paginate(20)
             ->withQueryString();
 
-        // Group devices by location for Tree View
         $groupedDevices = $devices->groupBy(function ($device) {
             $loc = trim($device->location ?? '');
             return empty($loc) ? 'OTHER / UNASSIGNED' : $loc;
@@ -90,9 +82,7 @@ class MonitoringController extends Controller
         ));
     }
 
-    /**
-     * Ping a single device (AJAX endpoint).
-     */
+    
     public function ping(Device $device, PingService $pingService): JsonResponse
     {
         $result = $pingService->pingDevice($device);
