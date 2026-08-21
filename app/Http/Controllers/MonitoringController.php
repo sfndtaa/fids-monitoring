@@ -92,12 +92,10 @@ class MonitoringController extends Controller
             'message' => "Ping to {$device->device_name} ({$device->ip_address}) completed.",
             'data' => $result,
         ]);
+    
     }
-
-    /**
-     * Batch ping a chunk of devices (AJAX endpoint).
-     */
-    public function pingBatch(Request $request, PingService $pingService): JsonResponse
+    
+        public function pingBatch(Request $request, PingService $pingService): JsonResponse
     {
         $request->validate([
             'device_ids' => 'required|array',

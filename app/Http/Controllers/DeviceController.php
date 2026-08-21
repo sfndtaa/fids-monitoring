@@ -10,10 +10,10 @@ class DeviceController extends Controller
  
     public function index(Request $request)
     {
-        $query = Device::query();
+            $query = Device::query();
 
-        // Search Device Name, IP Address, or Location
-        if ($request->filled('search')) {
+
+             if ($request->filled('search')) {
             $search = $request->search;
 
             $query->where(function ($q) use ($search) {
@@ -23,12 +23,11 @@ class DeviceController extends Controller
             });
         }
 
-        // Filter Location
         if ($request->filled('location')) {
             $query->where('location', $request->location);
         }
 
-        // Filter Status
+
         if ($request->filled('status') && in_array($request->status, ['online', 'offline', 'warning', 'maintenance'])) {
             $query->where('status', $request->status);
         }
