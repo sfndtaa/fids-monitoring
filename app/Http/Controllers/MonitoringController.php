@@ -108,7 +108,7 @@ class MonitoringController extends Controller
 
         $results = $pingService->pingBatch($deviceIds, $timeout);
 
-        // Recalculate summary stats
+
         $allDevices = Device::all();
         $stats = [
             'total' => $allDevices->count(),
