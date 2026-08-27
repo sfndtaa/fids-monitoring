@@ -6,6 +6,10 @@ test('login screen can be rendered', function () {
     $response = $this->get('/login');
 
     $response->assertStatus(200);
+    $response->assertSee('InJourney');
+    $response->assertSee('Ingat saya');
+    $response->assertHeader('X-Frame-Options', 'SAMEORIGIN');
+    $response->assertHeader('X-Content-Type-Options', 'nosniff');
 });
 
 test('users can authenticate using the login screen', function () {
@@ -18,6 +22,20 @@ test('users can authenticate using the login screen', function () {
 
     $this->assertAuthenticated();
     $response->assertRedirect(route('dashboard', absolute: false));
+});
+
+test('users can authenticate with remember me enabled', function () {
+    $user = User::factory()->create();
+
+    $response = $this->post('/login', [
+        'email' => $user->email,
+        'password' => 'password',
+        'remember' => 'on',
+    ]);
+
+    $this->assertAuthenticated();
+    $this->assertNotNull($user->fresh()->remember_token);
+    $response->assertCookie(Auth::getRecallerName());
 });
 
 test('users can not authenticate with invalid password', function () {
