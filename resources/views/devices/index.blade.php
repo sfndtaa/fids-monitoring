@@ -15,7 +15,7 @@
         </div>
 
         <a href="{{ route('monitoring') }}"
-            class="px-3.5 py-1.5 rounded-lg bg-[#15803d] hover:bg-[#16a34a] text-white text-xs font-semibold shadow-xs transition flex items-center gap-1.5">
+            class="px-3.5 py-2 rounded-xl bg-[#0072bc] hover:bg-[#005b9f] text-white text-xs font-semibold shadow-xs transition flex items-center gap-1.5">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
             </svg>
@@ -24,10 +24,10 @@
     </div>
 
     <!-- Search & Location Filter -->
-    <form method="GET" class="bg-white rounded-lg shadow-xs border border-slate-200 p-3 flex flex-wrap items-center gap-3">
+    <form method="GET" class="bg-white rounded-xl shadow-xs border border-slate-200 p-3.5 flex flex-wrap items-center gap-3">
 
         <div class="relative flex-1 min-w-[240px]">
-            <span class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-400">
+            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                 </svg>
@@ -37,12 +37,12 @@
                 name="search"
                 value="{{ request('search') }}"
                 placeholder="Search device name, IP, or location..."
-                class="w-full pl-8 pr-3 py-1.5 text-xs rounded-md border border-slate-300 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                class="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-[#0072bc]">
         </div>
 
         <select
             name="location"
-            class="text-xs rounded-md border border-slate-300 px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+            class="text-xs rounded-lg border border-slate-300 px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#0072bc] bg-white text-slate-700">
             <option value="">All Locations / Branches</option>
             @foreach($locations as $location)
                 <option
@@ -55,14 +55,14 @@
 
         <button
             type="submit"
-            class="bg-[#15803d] hover:bg-[#16a34a] text-white px-4 py-1.5 text-xs font-semibold rounded-md transition">
+            class="bg-[#0072bc] hover:bg-[#005b9f] text-white px-4 py-1.5 text-xs font-semibold rounded-lg transition shadow-xs">
             Filter
         </button>
 
         @if(request('search') || request('location'))
         <a
             href="{{ route('devices') }}"
-            class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-3 py-1.5 text-xs font-medium rounded-md transition">
+            class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-3 py-1.5 text-xs font-medium rounded-lg transition">
             Reset
         </a>
         @endif
@@ -70,10 +70,10 @@
     </form>
 
     <!-- Table of Devices -->
-    <div class="bg-white rounded-lg shadow-xs border border-slate-200 overflow-hidden">
+    <div class="bg-white rounded-xl shadow-xs border border-slate-200 overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-xs">
-                <thead class="bg-slate-100 text-slate-600 border-b border-slate-200 font-semibold uppercase">
+                <thead class="bg-slate-50 text-slate-600 border-b border-slate-200 font-semibold uppercase text-[11px]">
                     <tr>
                         <th class="text-left px-4 py-3">Device Name</th>
                         <th class="text-left px-4 py-3">Location</th>
@@ -87,19 +87,19 @@
                 <tbody class="divide-y divide-slate-100">
                     @forelse($devices as $device)
                     <tr class="hover:bg-slate-50 transition cursor-pointer" onclick="window.location.href='{{ route('devices.show', $device->id) }}'">
-                        <td class="px-4 py-2.5 font-bold text-slate-800">
+                        <td class="px-4 py-3 font-bold text-slate-800">
                             {{ $device->device_name }}
                         </td>
 
-                        <td class="px-4 py-2.5 text-slate-600">
+                        <td class="px-4 py-3 text-slate-600">
                             {{ $device->location ?? '-' }}
                         </td>
 
-                        <td class="px-4 py-2.5 font-mono text-slate-700 select-all">
+                        <td class="px-4 py-3 font-mono text-slate-700 select-all">
                             {{ $device->ip_address }}
                         </td>
 
-                        <td class="px-4 py-2.5 text-center">
+                        <td class="px-4 py-3 text-center">
                             @if($device->status == 'online')
                                 <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-100 text-emerald-800 border border-emerald-200">
                                     Online
@@ -119,17 +119,17 @@
                             @endif
                         </td>
 
-                        <td class="px-4 py-2.5 text-center font-mono">
+                        <td class="px-4 py-3 text-center font-mono">
                             {{ $device->response_time ? $device->response_time . ' ms' : '-' }}
                         </td>
 
-                        <td class="px-4 py-2.5 text-center text-slate-500 font-mono">
+                        <td class="px-4 py-3 text-center text-slate-500 font-mono">
                             {{ $device->last_ping ? \Carbon\Carbon::parse($device->last_ping)->format('d M Y H:i:s') : 'Never' }}
                         </td>
 
-                        <td class="px-4 py-2.5 text-center" onclick="event.stopPropagation()">
+                        <td class="px-4 py-3 text-center" onclick="event.stopPropagation()">
                             <a href="{{ route('devices.show', $device->id) }}"
-                                class="px-2 py-1 rounded bg-[#15803d] hover:bg-[#16a34a] text-white text-[10px] font-medium transition">
+                                class="px-2.5 py-1 rounded-md bg-[#0072bc] hover:bg-[#005b9f] text-white text-[10px] font-medium transition shadow-2xs">
                                 Detail
                             </a>
                         </td>

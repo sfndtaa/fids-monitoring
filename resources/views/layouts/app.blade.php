@@ -11,7 +11,7 @@ $currentUser = auth()->user();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>InJourney Airport - FIDS Monitoring</title>
+    <title>Angkasa Pura Airports - FIDS Monitoring</title>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="https://cdn.tailwindcss.com"></script>
@@ -39,7 +39,8 @@ $currentUser = auth()->user();
         }
 
         body {
-            background: #f1f5f9;
+            background-color: #f8fafc;
+            color: #0f172a;
             overflow: hidden;
         }
 
@@ -71,7 +72,7 @@ $currentUser = auth()->user();
             white-space: nowrap;
             overflow: hidden;
             transition: opacity 0.2s ease, max-width 0.25s ease;
-            max-width: 160px;
+            max-width: 170px;
             opacity: 1;
         }
 
@@ -102,23 +103,18 @@ $currentUser = auth()->user();
 
 <body>
 
-<div class="flex h-screen overflow-hidden">
+<div class="flex h-screen overflow-hidden bg-slate-50">
 
-    <!-- Compact Sidebar (Forest Green Theme) -->
+    <!-- Light Mode Sidebar (Angkasa Pura Theme) -->
     <aside
         id="sidebar"
-        class="sidebar w-52 bg-[#062314] text-slate-100 flex flex-col fixed left-0 top-0 h-screen shadow-lg z-50 border-r border-[#0f3d24]">
+        class="sidebar w-56 bg-white text-slate-800 flex flex-col fixed left-0 top-0 h-screen shadow-xs z-50 border-r border-slate-200">
 
         <!-- Logo Section -->
-        <div class="h-16 px-3.5 flex items-center justify-between border-b border-[#0f3d24]">
-            <div class="logo-container flex flex-col">
-                <div class="flex items-center gap-1.5">
-                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <h1 class="text-sm font-bold text-white tracking-wide">
-                        InJourney Airport
-                    </h1>
-                </div>
-                <p class="text-emerald-400/80 text-[10px] pl-3.5 font-medium">
+        <div class="h-16 px-3.5 flex items-center justify-between border-b border-slate-200/80 bg-white">
+            <div class="logo-container flex flex-col justify-center overflow-hidden">
+                <img src="{{ asset('images/angkasapura-logo.jpg') }}" alt="Angkasa Pura | Airports" class="h-7 w-auto max-w-[155px] object-contain object-left">
+                <p class="text-[10px] font-bold text-[#0072bc] tracking-wider uppercase mt-0.5">
                     FIDS Monitoring
                 </p>
             </div>
@@ -127,7 +123,7 @@ $currentUser = auth()->user();
                 id="toggleSidebar"
                 type="button"
                 tabindex="-1"
-                class="p-1.5 rounded-lg hover:bg-[#0d3b21] transition text-emerald-300 hover:text-white shrink-0"
+                class="p-1.5 rounded-lg hover:bg-slate-100 transition text-slate-500 hover:text-slate-800 shrink-0"
                 title="Toggle Sidebar">
                 <svg xmlns="http://www.w3.org/2000/svg"
                     class="w-5 h-5"
@@ -143,12 +139,12 @@ $currentUser = auth()->user();
         </div>
 
         <!-- Menu Navigation -->
-        <nav class="flex-1 px-2.5 py-3.5 space-y-1 overflow-y-auto overflow-x-hidden">
+        <nav class="flex-1 px-2.5 py-3 space-y-1 overflow-y-auto overflow-x-hidden">
 
             <!-- Dashboard -->
             <a href="{{ route('dashboard') }}"
                 class="menu-item flex items-center gap-2.5 rounded-lg px-2.5 py-2 transition-colors
-                {{ request()->routeIs('dashboard') ? 'bg-[#15803d] text-white font-semibold shadow-xs' : 'text-emerald-100/80 hover:bg-[#0c331d] hover:text-white' }}">
+                {{ request()->routeIs('dashboard') ? 'bg-[#0072bc] text-white font-semibold shadow-xs' : 'text-slate-600 hover:bg-slate-100 hover:text-[#0072bc]' }}">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 13h8V3H3v10Zm10 8h8V11h-8v10ZM3 21h8v-6H3v6Zm10-10h8V3h-8v8Z"/>
                 </svg>
@@ -158,7 +154,7 @@ $currentUser = auth()->user();
             <!-- Devices -->
             <a href="{{ route('devices') }}"
                 class="menu-item flex items-center gap-2.5 rounded-lg px-2.5 py-2 transition-colors
-                {{ request()->routeIs('devices*') ? 'bg-[#15803d] text-white font-semibold shadow-xs' : 'text-emerald-100/80 hover:bg-[#0c331d] hover:text-white' }}">
+                {{ request()->routeIs('devices*') ? 'bg-[#0072bc] text-white font-semibold shadow-xs' : 'text-slate-600 hover:bg-slate-100 hover:text-[#0072bc]' }}">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M4 5h16v10H4V5Z"/>
                 </svg>
@@ -168,7 +164,7 @@ $currentUser = auth()->user();
             <!-- Monitoring -->
             <a href="{{ route('monitoring') }}"
                 class="menu-item flex items-center gap-2.5 rounded-lg px-2.5 py-2 transition-colors
-                {{ request()->routeIs('monitoring') ? 'bg-[#15803d] text-white font-semibold shadow-xs' : 'text-emerald-100/80 hover:bg-[#0c331d] hover:text-white' }}">
+                {{ request()->routeIs('monitoring') ? 'bg-[#0072bc] text-white font-semibold shadow-xs' : 'text-slate-600 hover:bg-slate-100 hover:text-[#0072bc]' }}">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h3l2-5 4 10 2-5h3"/>
                 </svg>
@@ -178,7 +174,7 @@ $currentUser = auth()->user();
             <!-- History -->
             <a href="{{ route('history') }}"
                 class="menu-item flex items-center gap-2.5 rounded-lg px-2.5 py-2 transition-colors
-                {{ request()->routeIs('history') ? 'bg-[#15803d] text-white font-semibold shadow-xs' : 'text-emerald-100/80 hover:bg-[#0c331d] hover:text-white' }}">
+                {{ request()->routeIs('history') ? 'bg-[#0072bc] text-white font-semibold shadow-xs' : 'text-slate-600 hover:bg-slate-100 hover:text-[#0072bc]' }}">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3M21 12A9 9 0 1112 3"/>
                 </svg>
@@ -188,7 +184,7 @@ $currentUser = auth()->user();
             <!-- Notifications -->
             <a href="{{ route('notifications') }}"
                 class="menu-item flex items-center gap-2.5 rounded-lg px-2.5 py-2 transition-colors
-                {{ request()->routeIs('notifications') ? 'bg-[#15803d] text-white font-semibold shadow-xs' : 'text-emerald-100/80 hover:bg-[#0c331d] hover:text-white' }}">
+                {{ request()->routeIs('notifications') ? 'bg-[#0072bc] text-white font-semibold shadow-xs' : 'text-slate-600 hover:bg-slate-100 hover:text-[#0072bc]' }}">
                 <div class="relative shrink-0">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2a2 2 0 01-.6 1.4L4 17h5m6 0a3 3 0 11-6 0h6Z"/>
@@ -210,7 +206,7 @@ $currentUser = auth()->user();
             <!-- Import -->
             <a href="{{ route('import.index') }}"
                 class="menu-item flex items-center gap-2.5 rounded-lg px-2.5 py-2 transition-colors
-                {{ request()->routeIs('import*') ? 'bg-[#15803d] text-white font-semibold shadow-xs' : 'text-emerald-100/80 hover:bg-[#0c331d] hover:text-white' }}">
+                {{ request()->routeIs('import*') ? 'bg-[#0072bc] text-white font-semibold shadow-xs' : 'text-slate-600 hover:bg-slate-100 hover:text-[#0072bc]' }}">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
                 </svg>
@@ -219,13 +215,13 @@ $currentUser = auth()->user();
 
             <!-- User Management (Admin Only) -->
             @if(auth()->check() && auth()->user()->role === 'admin')
-            <div class="pt-2 mt-2 border-t border-[#0f3d24]">
-                <p class="menu-text text-[10px] uppercase font-bold text-emerald-400/60 px-2.5 mb-1 tracking-wider">
+            <div class="pt-2 mt-2 border-t border-slate-200">
+                <p class="menu-text text-[10px] uppercase font-bold text-slate-400 px-2.5 mb-1 tracking-wider">
                     Admin
                 </p>
                 <a href="{{ route('users.index') }}"
                     class="menu-item flex items-center gap-2.5 rounded-lg px-2.5 py-2 transition-colors
-                    {{ request()->routeIs('users*') ? 'bg-[#15803d] text-white font-semibold shadow-xs' : 'text-emerald-100/80 hover:bg-[#0c331d] hover:text-white' }}">
+                    {{ request()->routeIs('users*') ? 'bg-[#0072bc] text-white font-semibold shadow-xs' : 'text-slate-600 hover:bg-slate-100 hover:text-[#0072bc]' }}">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
                     </svg>
@@ -237,15 +233,15 @@ $currentUser = auth()->user();
         </nav>
 
         <!-- User Profile & Logout -->
-        <div class="p-2.5 border-t border-[#0f3d24] space-y-1.5 bg-[#041a0e]">
+        <div class="p-2.5 border-t border-slate-200 space-y-1.5 bg-slate-50/60">
             @if($currentUser)
-            <div class="flex items-center gap-2 px-1.5 py-1 text-slate-200">
-                <div class="w-7 h-7 rounded-md bg-[#15803d] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
+            <div class="flex items-center gap-2 px-1.5 py-1 text-slate-700">
+                <div class="w-7 h-7 rounded-md bg-[#0072bc] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
                     {{ strtoupper(substr($currentUser->name ?? 'U', 0, 1)) }}
                 </div>
                 <div class="user-info truncate">
-                    <p class="text-[11px] font-semibold text-white truncate leading-tight">{{ $currentUser->name }}</p>
-                    <span class="text-[9px] uppercase font-bold text-emerald-400">
+                    <p class="text-[11px] font-semibold text-slate-900 truncate leading-tight">{{ $currentUser->name }}</p>
+                    <span class="text-[9px] uppercase font-bold text-[#0072bc]">
                         {{ $currentUser->role ?? 'User' }}
                     </span>
                 </div>
@@ -254,7 +250,7 @@ $currentUser = auth()->user();
 
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button type="submit" class="menu-item w-full flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-emerald-200/70 hover:text-rose-300 hover:bg-rose-950/40 transition-colors text-xs">
+                <button type="submit" class="menu-item w-full flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-colors text-xs">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H9m4 8H7a2 2 0 01-2-2V6a2 2 0 012-2h6"/>
                     </svg>
@@ -266,12 +262,12 @@ $currentUser = auth()->user();
     </aside>
 
     <!-- Main Content Area -->
-    <div id="mainContent" class="flex-1 ml-52 transition-all duration-250 ease-in-out flex flex-col h-screen overflow-hidden">
+    <div id="mainContent" class="flex-1 ml-56 transition-all duration-250 ease-in-out flex flex-col h-screen overflow-hidden bg-slate-50">
 
         <!-- Header -->
-        <header id="header" class="bg-white h-16 shadow-xs flex items-center justify-between px-6 fixed top-0 left-52 right-0 z-40 transition-all duration-250 ease-in-out border-b border-slate-200">
+        <header id="header" class="bg-white h-16 shadow-2xs flex items-center justify-between px-6 fixed top-0 left-56 right-0 z-40 transition-all duration-250 ease-in-out border-b border-slate-200">
             <div>
-                <h2 class="text-base font-bold text-slate-800 tracking-tight flex items-center gap-2">
+                <h2 class="text-sm font-bold text-slate-800 tracking-tight flex items-center gap-2">
                     @if(request()->routeIs('dashboard'))
                         Dashboard Overview
                     @elseif(request()->routeIs('devices.show'))
@@ -292,6 +288,9 @@ $currentUser = auth()->user();
                         FIDS Monitoring
                     @endif
                 </h2>
+                <p class="text-slate-400 text-[10px]">
+                    Angkasa Pura Airports • SAMS Sepinggan International Airport
+                </p>
             </div>
 
             <div class="flex items-center gap-3">
@@ -319,14 +318,14 @@ $currentUser = auth()->user();
 
                 <!-- Profile Card -->
                 <div class="flex items-center gap-2 pl-2 border-l border-slate-200">
-                    <div class="w-8 h-8 rounded-lg bg-[#15803d] text-white flex items-center justify-center font-bold text-xs shadow-xs">
+                    <div class="w-8 h-8 rounded-lg bg-[#0072bc] text-white flex items-center justify-center font-bold text-xs shadow-xs">
                         {{ strtoupper(substr($currentUser->name ?? 'A', 0, 1)) }}
                     </div>
                     <div class="hidden sm:block text-left">
                         <p class="text-xs font-semibold text-slate-800 leading-tight">
                             {{ $currentUser->name ?? 'User' }}
                         </p>
-                        <p class="text-[10px] text-slate-500 capitalize">
+                        <p class="text-[10px] text-slate-400 capitalize">
                             {{ $currentUser->role ?? 'User' }}
                         </p>
                     </div>
@@ -364,7 +363,6 @@ $currentUser = auth()->user();
                 e.preventDefault();
                 e.stopPropagation();
 
-                // Lepas class penahan anti-flicker di <html> jika ada
                 html.classList.remove('sidebar-is-collapsed');
 
                 const isCollapsed = sidebar.classList.toggle('collapsed');

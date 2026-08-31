@@ -4,18 +4,18 @@
 
 <div class="space-y-3">
 
-    <!-- Top NOC Control & Settings Bar -->
-    <div class="bg-[#062314] text-white rounded-lg shadow-xs border border-[#0f3d24] px-3.5 py-2">
-        <form method="GET" action="{{ route('monitoring') }}" id="filterForm" class="flex flex-wrap items-center justify-between gap-2.5 text-xs">
+    <!-- Top Toolbar (Angkasa Pura Light Theme) -->
+    <div class="bg-white text-slate-800 rounded-xl shadow-xs border border-slate-200 px-4 py-2.5">
+        <form method="GET" action="{{ route('monitoring') }}" id="filterForm" class="flex flex-wrap items-center justify-between gap-3 text-xs">
             
             <!-- Left: Live Clock & Auto-refresh status -->
             <div class="flex flex-wrap items-center gap-2 font-mono text-[11px]">
-                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200">
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#0072bc] animate-pulse"></span>
                     <span id="lastRefreshDisplay">[ Last Check: {{ now()->format('H:i:s') }} ]</span>
                 </span>
-                <span class="text-emerald-400/80 hidden sm:inline">
-                    [ Auto-Refresh in <span id="autoRefreshCountdown" class="text-white font-bold">45</span>s ]
+                <span class="text-slate-500 hidden sm:inline">
+                    [ Auto-Refresh in <span id="autoRefreshCountdown" class="text-[#0072bc] font-bold">45</span>s ]
                 </span>
             </div>
 
@@ -23,13 +23,13 @@
             <div class="flex flex-wrap items-center gap-2">
                 
                 <!-- View Mode Switcher (Tree View vs Card Grid View) -->
-                <div class="inline-flex p-0.5 bg-[#0a301c] rounded-md border border-[#14532d]">
+                <div class="inline-flex p-0.5 bg-slate-100 rounded-lg border border-slate-200">
                     <button
                         type="button"
                         onclick="setViewMode('tree')"
                         id="tabTree"
-                        class="px-2 py-0.5 rounded text-[11px] font-semibold transition flex items-center gap-1 {{ $viewMode !== 'table' ? 'bg-[#15803d] text-white shadow-xs' : 'text-emerald-300/70 hover:text-white' }}">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        class="px-2.5 py-1 rounded-md text-[11px] font-semibold transition flex items-center gap-1.5 {{ $viewMode !== 'table' ? 'bg-[#0072bc] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900' }}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h8M4 18h8"/>
                         </svg>
                         <span>Tree View (Icon)</span>
@@ -39,8 +39,8 @@
                         type="button"
                         onclick="setViewMode('table')"
                         id="tabTable"
-                        class="px-2 py-0.5 rounded text-[11px] font-semibold transition flex items-center gap-1 {{ $viewMode === 'table' ? 'bg-[#15803d] text-white shadow-xs' : 'text-emerald-300/70 hover:text-white' }}">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        class="px-2.5 py-1 rounded-md text-[11px] font-semibold transition flex items-center gap-1.5 {{ $viewMode === 'table' ? 'bg-[#0072bc] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900' }}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
                         </svg>
                         <span>Card Grid View</span>
@@ -53,7 +53,7 @@
                     name="status"
                     id="statusSelect"
                     onchange="document.getElementById('filterForm').submit()"
-                    class="text-[11px] font-medium rounded-md border border-[#14532d] bg-[#0a301c] text-emerald-100 px-2 py-1 focus:outline-none focus:ring-1 focus:ring-emerald-400">
+                    class="text-[11px] font-medium rounded-lg border border-slate-300 bg-white text-slate-700 px-2.5 py-1 focus:outline-none focus:ring-1 focus:ring-[#0072bc]">
                     <option value="all" {{ $statusFilter === 'all' ? 'selected' : '' }}>Status: All ({{ $stats['total'] }})</option>
                     <option value="online" {{ $statusFilter === 'online' ? 'selected' : '' }}>Online ({{ $stats['online'] }})</option>
                     <option value="offline" {{ $statusFilter === 'offline' ? 'selected' : '' }}>Offline ({{ $stats['offline'] }})</option>
@@ -66,7 +66,7 @@
                     name="location"
                     id="locationSelect"
                     onchange="document.getElementById('filterForm').submit()"
-                    class="text-[11px] font-medium rounded-md border border-[#14532d] bg-[#0a301c] text-emerald-100 px-2 py-1 focus:outline-none focus:ring-1 focus:ring-emerald-400 max-w-[170px] truncate">
+                    class="text-[11px] font-medium rounded-lg border border-slate-300 bg-white text-slate-700 px-2.5 py-1 focus:outline-none focus:ring-1 focus:ring-[#0072bc] max-w-[170px] truncate">
                     <option value="all" {{ $locationFilter === 'all' ? 'selected' : '' }}>Branch: All Locations</option>
                     @foreach($locations as $loc)
                         <option value="{{ $loc }}" {{ $locationFilter === $loc ? 'selected' : '' }}>
@@ -83,9 +83,9 @@
                         id="searchInput"
                         value="{{ $search }}"
                         placeholder="Search device/IP..."
-                        class="pl-6 pr-2 py-0.5 text-[11px] rounded-md border border-[#14532d] bg-[#0a301c] text-emerald-100 placeholder-emerald-400/50 focus:outline-none focus:ring-1 focus:ring-emerald-400 w-28 sm:w-36">
-                    <span class="absolute inset-y-0 left-0 pl-1.5 flex items-center pointer-events-none text-emerald-400/60">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        class="pl-7 pr-2.5 py-1 text-[11px] rounded-lg border border-slate-300 bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-[#0072bc] w-32 sm:w-40">
+                    <span class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none text-slate-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                         </svg>
                     </span>
@@ -93,26 +93,40 @@
 
             </div>
 
-            <!-- Right: Action Buttons -->
-            <div class="flex items-center gap-1.5">
+            <!-- Right: Action Buttons & Sound Control -->
+            <div class="flex items-center gap-2">
+                
+                <!-- Sound Control Toggle (Muted / Unmuted) -->
+                <button
+                    type="button"
+                    id="btnToggleSound"
+                    onclick="toggleSoundControl()"
+                    class="px-2.5 py-1 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-[11px] font-semibold transition flex items-center gap-1.5 shadow-2xs"
+                    title="Toggle Alert Notification Sound">
+                    <span id="soundIcon">🔊</span>
+                    <span id="soundLabel">Unmuted</span>
+                </button>
+
+                <!-- Refresh Button -->
                 <button
                     type="button"
                     id="btnRefreshStatus"
                     onclick="refreshStatusData()"
-                    class="px-2.5 py-1 rounded-md bg-[#0e3d23] hover:bg-[#14532d] text-emerald-200 text-[11px] font-medium transition flex items-center gap-1 border border-[#1b6b3d]"
+                    class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-medium transition flex items-center gap-1 border border-slate-200"
                     title="Reload latest status from database">
-                    <svg id="refreshSpinner" xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg id="refreshSpinner" xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                     </svg>
                     <span>Refresh</span>
                 </button>
 
+                <!-- Ping Sweep Button (Angkasa Pura Blue) -->
                 <button
                     type="button"
                     id="btnStartBatchPing"
                     onclick="openPingModal()"
-                    class="px-3 py-1 rounded-md bg-[#15803d] hover:bg-[#16a34a] text-white text-[11px] font-bold transition flex items-center gap-1 shadow-sm">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    class="px-3.5 py-1 rounded-lg bg-[#0072bc] hover:bg-[#005b9f] text-white text-[11px] font-bold transition flex items-center gap-1.5 shadow-xs">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
                     </svg>
                     <span>Ping Sweep (Scan LAN)</span>
@@ -123,51 +137,51 @@
     </div>
 
     <!-- Status Legend Summary Bar -->
-    <div class="bg-white rounded-md border border-slate-300 px-3 py-1.5 flex flex-wrap items-center justify-between gap-2 text-[11px]">
-        <div class="flex items-center gap-1.5 font-bold text-slate-700">
-            <span class="w-2 h-2 rounded-full bg-[#15803d]"></span>
+    <div class="bg-white rounded-xl border border-slate-200 px-4 py-2 flex flex-wrap items-center justify-between gap-2.5 text-[11px] shadow-2xs">
+        <div class="flex items-center gap-2 font-bold text-slate-800">
+            <span class="w-2.5 h-2.5 rounded-full bg-[#0072bc]"></span>
             <span>Live Status:</span>
         </div>
 
-        <div class="flex flex-wrap items-center gap-3 font-medium">
-            <span class="flex items-center gap-1">
-                <span class="w-3 h-3 rounded-xs bg-[#16a34a] border border-[#15803d] inline-block"></span>
+        <div class="flex flex-wrap items-center gap-4 font-medium">
+            <span class="flex items-center gap-1.5">
+                <span class="w-3 h-3 rounded-sm bg-[#16a34a] border border-[#15803d] inline-block shadow-2xs"></span>
                 <span>Normal / Online: <strong id="legendOnline" class="font-mono text-emerald-700 font-bold">{{ $stats['online'] }}</strong></span>
             </span>
 
-            <span class="flex items-center gap-1">
-                <span class="w-3 h-3 rounded-xs bg-[#dc2626] border border-[#b91c1c] inline-block"></span>
+            <span class="flex items-center gap-1.5">
+                <span class="w-3 h-3 rounded-sm bg-[#dc2626] border border-[#b91c1c] inline-block shadow-2xs"></span>
                 <span>Alert / Offline: <strong id="legendOffline" class="font-mono text-rose-700 font-bold">{{ $stats['offline'] }}</strong></span>
             </span>
 
-            <span class="flex items-center gap-1">
-                <span class="w-3 h-3 rounded-xs bg-[#d97706] border border-[#b45309] inline-block"></span>
+            <span class="flex items-center gap-1.5">
+                <span class="w-3 h-3 rounded-sm bg-[#d97706] border border-[#b45309] inline-block shadow-2xs"></span>
                 <span>Warning: <strong id="legendWarning" class="font-mono text-amber-700 font-bold">{{ $stats['warning'] }}</strong></span>
             </span>
 
-            <span class="flex items-center gap-1">
-                <span class="w-3 h-3 rounded-xs bg-[#64748b] border border-[#475569] inline-block"></span>
+            <span class="flex items-center gap-1.5">
+                <span class="w-3 h-3 rounded-sm bg-[#64748b] border border-[#475569] inline-block shadow-2xs"></span>
                 <span>Maintenance: <strong id="legendMaintenance" class="font-mono text-slate-700 font-bold">{{ $stats['maintenance'] }}</strong></span>
             </span>
 
-            <span class="border-l border-slate-300 pl-2 text-slate-500">
-                Total: <strong id="legendTotal" class="font-mono text-slate-800 font-bold">{{ $stats['total'] }}</strong>
+            <span class="border-l border-slate-200 pl-3 text-slate-500">
+                Total: <strong id="legendTotal" class="font-mono text-slate-900 font-bold">{{ $stats['total'] }}</strong>
             </span>
         </div>
     </div>
 
-    <!-- VIEW 1: NOC TREE VIEW (ULTRA-DENSE ICON VIEW, MIRRORING CACTI NOC) -->
-    <div id="treeViewContainer" class="{{ $viewMode === 'table' ? 'hidden' : 'space-y-2.5' }}">
+    <!-- VIEW 1: NOC TREE VIEW (ULTRA-DENSE ICON VIEW) -->
+    <div id="treeViewContainer" class="{{ $viewMode === 'table' ? 'hidden' : 'space-y-3' }}">
         
         <!-- Master Tree Title Header Bar -->
-        <div class="bg-gradient-to-r from-[#14532d] via-[#166534] to-[#14532d] text-white px-3 py-1.5 rounded shadow-2xs border border-[#0f3d24] flex items-center justify-between">
-            <div class="flex items-center gap-1.5">
-                <span class="w-2.5 h-2.5 rounded-xs bg-emerald-300"></span>
+        <div class="bg-gradient-to-r from-[#005b9f] via-[#0072bc] to-[#005b9f] text-white px-4 py-2 rounded-xl shadow-xs border border-[#005b9f]/30 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-sm bg-emerald-400"></span>
                 <h2 class="font-bold text-xs md:text-sm text-white tracking-wide">
-                    Tree: SAMS Sepinggan Airport FIDS Monitoring Infrastructure
+                    Tree: SAMS Sepinggan Airport FIDS Network Infrastructure
                 </h2>
             </div>
-            <span class="text-[10px] bg-[#062314]/80 px-2 py-0.5 rounded text-emerald-200 font-mono">
+            <span class="text-[10px] bg-white/20 px-2.5 py-0.5 rounded-full text-white font-mono font-medium">
                 {{ $devices->count() }} Devices Monitored
             </span>
         </div>
@@ -181,36 +195,36 @@
             $groupTotal = $devList->count();
         @endphp
 
-        <div class="branch-card bg-white rounded border border-slate-300 shadow-2xs overflow-hidden" data-branch="{{ $locationName }}">
+        <div class="branch-card bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden" data-branch="{{ $locationName }}">
             
-            <!-- Thin Green Branch Ribbon Bar -->
-            <div class="px-2.5 py-1 bg-gradient-to-r from-[#166534] via-[#15803d] to-[#166534] text-white flex flex-wrap items-center justify-between gap-2 border-b border-[#0f3d24]">
-                <div class="flex items-center gap-1.5">
-                    <span class="w-1.5 h-1.5 rounded-xs bg-emerald-200"></span>
-                    <h3 class="font-bold text-[11px] md:text-xs text-white tracking-tight flex items-center gap-1.5">
+            <!-- Light Branch Ribbon Bar (Angkasa Pura Blue Accent) -->
+            <div class="px-3.5 py-1.5 bg-gradient-to-r from-[#0072bc] via-[#0084d6] to-[#0072bc] text-white flex flex-wrap items-center justify-between gap-2 border-b border-[#005b9f]">
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-xs bg-emerald-300"></span>
+                    <h3 class="font-bold text-xs text-white tracking-tight flex items-center gap-1.5">
                         <span>Branch: {{ $locationName }}</span>
-                        <span class="text-[10px] font-normal text-emerald-100/90">({{ $groupTotal }})</span>
+                        <span class="text-[10px] font-normal text-blue-100">({{ $groupTotal }})</span>
                     </h3>
                 </div>
 
                 <!-- Sub-counters -->
-                <div class="flex items-center gap-2 text-[10px] font-mono branch-stats">
-                    <span class="text-emerald-100 font-semibold branch-count-online">{{ $groupOnline > 0 ? $groupOnline . ' OK' : '' }}</span>
+                <div class="flex items-center gap-2.5 text-[10px] font-mono branch-stats">
+                    <span class="text-emerald-200 font-semibold branch-count-online">{{ $groupOnline > 0 ? $groupOnline . ' OK' : '' }}</span>
                     <span class="text-amber-200 font-bold branch-count-warning">{{ $groupWarning > 0 ? '● ' . $groupWarning . ' Warn' : '' }}</span>
                     <span class="text-rose-200 font-bold branch-count-offline">{{ $groupOffline > 0 ? '● ' . $groupOffline . ' Down' : '' }}</span>
                 </div>
             </div>
 
             <!-- Ultra-dense Device Icons Grid Container -->
-            <div class="p-2 bg-[#fcfdfd] overflow-x-auto">
-                <div class="device-grid flex flex-wrap gap-x-1.5 gap-y-2 items-start content-start">
+            <div class="p-2.5 bg-white overflow-x-auto">
+                <div class="device-grid flex flex-wrap gap-x-2 gap-y-2.5 items-start content-start">
                     
                     @foreach($devList as $device)
                     <div
                         id="node-device-{{ $device->id }}"
                         data-device-id="{{ $device->id }}"
                         data-status="{{ $device->status }}"
-                        class="device-node group relative flex flex-col items-center justify-start text-center cursor-pointer transition-transform duration-100 hover:scale-110 p-0.5 rounded hover:bg-emerald-50/60"
+                        class="device-node group relative flex flex-col items-center justify-start text-center cursor-pointer transition-transform duration-100 hover:scale-110 p-1 rounded-lg hover:bg-slate-100/70"
                         style="width: 58px;"
                         onclick="window.location.href='{{ route('devices.show', $device->id) }}'">
                         
@@ -227,7 +241,7 @@
                                 fill="currentColor"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <!-- Outer Chassis -->
-                                <rect x="1" y="1" width="42" height="24" rx="3" fill="currentColor" stroke="#000" stroke-width="1.2" stroke-opacity="0.3"/>
+                                <rect x="1" y="1" width="42" height="24" rx="3" fill="currentColor" stroke="#000" stroke-width="1.2" stroke-opacity="0.25"/>
                                 <!-- Drive Slots -->
                                 <rect x="4" y="5" width="8" height="4" rx="0.5" fill="#ffffff" fill-opacity="0.85"/>
                                 <rect x="14" y="5" width="8" height="4" rx="0.5" fill="#ffffff" fill-opacity="0.85"/>
@@ -248,21 +262,21 @@
                                 type="button"
                                 title="Ping now"
                                 onclick="event.stopPropagation(); pingNodeDevice({{ $device->id }})"
-                                class="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-slate-900 hover:bg-emerald-600 text-white flex items-center justify-center text-[8px] opacity-0 group-hover:opacity-100 transition z-10">
+                                class="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-[#0072bc] hover:bg-[#005b9f] text-white flex items-center justify-center text-[8px] opacity-0 group-hover:opacity-100 transition z-10 shadow-xs">
                                 ⚡
                             </button>
                         </div>
 
                         <!-- Device Name Label -->
-                        <span class="node-label text-[9px] font-medium leading-[11px] text-slate-800 mt-0.5 break-words line-clamp-2 max-w-[56px] group-hover:text-emerald-700 transition" title="{{ $device->device_name }} ({{ $device->ip_address }})">
+                        <span class="node-label text-[9px] font-medium leading-[11px] text-slate-700 mt-1 break-words line-clamp-2 max-w-[56px] group-hover:text-[#0072bc] transition" title="{{ $device->device_name }} ({{ $device->ip_address }})">
                             {{ $device->device_name }}
                         </span>
 
                         <!-- Custom Hover Popover Tooltip -->
-                        <div class="pointer-events-none group-hover:pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity duration-150 absolute bottom-full mb-1.5 left-1/2 -translate-x-1/2 w-44 bg-slate-950 text-white text-left p-2 rounded shadow-2xl z-50 border border-slate-700">
-                            <div class="flex items-center justify-between border-b border-slate-800 pb-1 mb-1">
+                        <div class="pointer-events-none group-hover:pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity duration-150 absolute bottom-full mb-1.5 left-1/2 -translate-x-1/2 w-48 bg-slate-900 text-white text-left p-2.5 rounded-xl shadow-xl z-50 border border-slate-700">
+                            <div class="flex items-center justify-between border-b border-slate-800 pb-1 mb-1.5">
                                 <span class="font-bold text-[11px] truncate text-white">{{ $device->device_name }}</span>
-                                <span class="node-tooltip-badge px-1 py-0.2 rounded text-[8px] font-bold uppercase
+                                <span class="node-tooltip-badge px-1.5 py-0.2 rounded text-[8px] font-bold uppercase
                                     {{ $device->status === 'online' ? 'bg-emerald-900 text-emerald-300' : '' }}
                                     {{ $device->status === 'offline' ? 'bg-rose-900 text-rose-300' : '' }}
                                     {{ $device->status === 'warning' ? 'bg-amber-900 text-amber-300' : '' }}
@@ -285,14 +299,14 @@
 
         </div>
         @empty
-        <div class="bg-white rounded p-8 text-center border border-slate-300 text-slate-500 text-xs">
+        <div class="bg-white rounded-xl p-8 text-center border border-slate-200 text-slate-400 text-xs">
             No devices found matching filter.
         </div>
         @endforelse
 
     </div>
 
-    <!-- VIEW 2: CARD GRID VIEW (KOTAK-KOTAK TERSTRUKTUR) -->
+    <!-- VIEW 2: CARD GRID VIEW (KOTAK-KOTAK TERSTRUKTUR LIGHT MODE) -->
     <div id="tableViewContainer" class="{{ $viewMode === 'table' ? 'space-y-4' : 'hidden' }}">
         
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
@@ -300,18 +314,18 @@
             @forelse($tableDevices as $device)
             <div
                 id="card-device-{{ $device->id }}"
-                class="bg-white rounded-lg border border-slate-200 hover:border-emerald-500 shadow-xs hover:shadow-md transition p-3 flex flex-col justify-between cursor-pointer"
+                class="bg-white rounded-xl border border-slate-200 hover:border-[#0072bc] shadow-xs hover:shadow-md transition p-3.5 flex flex-col justify-between cursor-pointer"
                 onclick="window.location.href='{{ route('devices.show', $device->id) }}'">
                 
                 <div>
-                    <!-- Card Header: Name & Status Dot -->
+                    <!-- Card Header: Name & Status Badge -->
                     <div class="flex items-start justify-between gap-1 pb-2 border-b border-slate-100">
                         <div class="min-w-0">
                             <h4 class="font-bold text-xs text-slate-800 truncate" title="{{ $device->device_name }}">
                                 {{ $device->device_name }}
                             </h4>
                             <p class="text-[10px] text-slate-400 truncate mt-0.5">
-                                {{ $device->location ?? 'Unassigned' }}
+                                {{ (preg_match('/^BMID/i', $device->location) || preg_match('/^BMID/i', $device->device_name)) ? 'BMID' : ($device->location ?? 'Unassigned') }}
                             </p>
                         </div>
 
@@ -326,7 +340,7 @@
                     </div>
 
                     <!-- Specs details -->
-                    <div class="py-2 space-y-1 text-[11px]">
+                    <div class="py-2.5 space-y-1 text-[11px]">
                         <div class="flex justify-between">
                             <span class="text-slate-400">IP:</span>
                             <span class="font-mono font-medium text-slate-700 select-all">{{ $device->ip_address }}</span>
@@ -338,7 +352,7 @@
                             </span>
                         </div>
                         <div class="flex justify-between text-[10px]">
-                            <span class="text-slate-400">Last Ping:</span>
+                            <span class="text-slate-400">Last Checked:</span>
                             <span class="card-lastping text-slate-500">
                                 {{ $device->last_ping ? \Carbon\Carbon::parse($device->last_ping)->format('d M H:i') : 'Never' }}
                             </span>
@@ -350,21 +364,21 @@
                 <div class="pt-2 border-t border-slate-100 flex items-center justify-between gap-2" onclick="event.stopPropagation()">
                     <a
                         href="{{ route('devices.show', $device->id) }}"
-                        class="text-[10px] text-emerald-700 hover:text-emerald-900 font-semibold">
+                        class="text-[10px] text-[#0072bc] hover:underline font-semibold">
                         View Detail &rarr;
                     </a>
 
                     <button
                         type="button"
                         onclick="pingNodeDevice({{ $device->id }})"
-                        class="card-ping-btn px-2 py-0.5 rounded bg-emerald-50 hover:bg-emerald-600 hover:text-white text-emerald-700 text-[10px] font-medium transition border border-emerald-200">
+                        class="card-ping-btn px-2.5 py-0.5 rounded-md bg-slate-100 hover:bg-[#0072bc] hover:text-white text-slate-700 text-[10px] font-medium transition border border-slate-200">
                         Ping
                     </button>
                 </div>
 
             </div>
             @empty
-            <div class="col-span-full bg-white rounded-lg p-8 text-center border border-slate-200 text-slate-400 text-xs">
+            <div class="col-span-full bg-white rounded-xl p-8 text-center border border-slate-200 text-slate-400 text-xs">
                 No devices found matching query.
             </div>
             @endforelse
@@ -373,7 +387,7 @@
 
         <!-- Pagination for Card View -->
         @if($tableDevices->hasPages())
-        <div class="p-3 bg-white rounded-lg border border-slate-200">
+        <div class="p-3 bg-white rounded-xl border border-slate-200 shadow-xs">
             {{ $tableDevices->links() }}
         </div>
         @endif
@@ -382,20 +396,20 @@
 
 </div>
 
-<!-- BATCH PING SWEEP MODAL -->
-<div id="pingModal" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-2xs flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-xl shadow-2xl border border-slate-300 w-full max-w-lg overflow-hidden">
+<!-- BATCH PING SWEEP MODAL (LIGHT MODE) -->
+<div id="pingModal" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-2xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-lg overflow-hidden">
         
-        <div class="p-4 bg-[#14532d] text-white flex items-center justify-between">
-            <div class="flex items-center gap-2">
-                <div class="w-7 h-7 rounded bg-emerald-400/20 flex items-center justify-center text-emerald-300">
+        <div class="p-4 bg-[#0072bc] text-white flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center text-white">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
                     </svg>
                 </div>
                 <div>
-                    <h3 class="font-bold text-xs text-white">Live Network Ping Sweep</h3>
-                    <p class="text-[10px] text-emerald-200">Executing native ICMP packets across Airport LAN</p>
+                    <h3 class="font-bold text-xs text-white">Airport LAN Ping Sweep</h3>
+                    <p class="text-[10px] text-blue-100">Scanning all FIDS devices across Airport LAN</p>
                 </div>
             </div>
 
@@ -403,39 +417,39 @@
                 type="button"
                 id="btnModalClose"
                 onclick="closePingModal()"
-                class="w-6 h-6 rounded bg-[#0b331c] hover:bg-[#062314] text-slate-300 flex items-center justify-center transition">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                class="w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
             </button>
         </div>
 
-        <div class="p-4 space-y-3">
+        <div class="p-5 space-y-3.5">
             
             <!-- Progress Info -->
             <div>
-                <div class="flex justify-between text-xs font-semibold text-slate-700 mb-1">
+                <div class="flex justify-between text-xs font-semibold text-slate-700 mb-1.5">
                     <span id="pingProgressText">Ready to scan LAN devices</span>
-                    <span id="pingProgressPercent" class="font-mono font-bold text-emerald-700">0%</span>
+                    <span id="pingProgressPercent" class="font-mono font-bold text-[#0072bc]">0%</span>
                 </div>
 
                 <!-- Progress Bar -->
-                <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200">
-                    <div id="pingProgressBar" class="h-full bg-[#15803d] rounded-full transition-all duration-200 w-0"></div>
+                <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200">
+                    <div id="pingProgressBar" class="h-full bg-[#0072bc] rounded-full transition-all duration-200 w-0"></div>
                 </div>
             </div>
 
             <!-- Ping Results Summary in Modal -->
             <div class="grid grid-cols-3 gap-2 text-center">
-                <div class="p-2 rounded bg-emerald-50 border border-emerald-200">
+                <div class="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200">
                     <span class="text-[9px] uppercase font-bold text-emerald-800 block">Normal (Online)</span>
                     <span id="modalOnlineCount" class="text-base font-bold text-emerald-700 font-mono">0</span>
                 </div>
-                <div class="p-2 rounded bg-amber-50 border border-amber-200">
+                <div class="p-2.5 rounded-xl bg-amber-50 border border-amber-200">
                     <span class="text-[9px] uppercase font-bold text-amber-800 block">Warning Latency</span>
                     <span id="modalWarningCount" class="text-base font-bold text-amber-700 font-mono">0</span>
                 </div>
-                <div class="p-2 rounded bg-rose-50 border border-rose-200">
+                <div class="p-2.5 rounded-xl bg-rose-50 border border-rose-200">
                     <span class="text-[9px] uppercase font-bold text-rose-800 block">Alert (Offline)</span>
                     <span id="modalOfflineCount" class="text-base font-bold text-rose-700 font-mono">0</span>
                 </div>
@@ -444,18 +458,18 @@
             <!-- Live Log Terminal Area -->
             <div class="space-y-1">
                 <span class="text-[11px] font-semibold text-slate-600 block">Live ICMP Console:</span>
-                <div id="pingConsole" class="h-36 rounded bg-slate-950 text-slate-300 p-2.5 font-mono text-[10px] overflow-y-auto space-y-0.5 border border-slate-800">
-                    <p class="text-slate-500">// Ready. Press "Start Network Ping" to begin ICMP sweep.</p>
+                <div id="pingConsole" class="h-36 rounded-xl bg-slate-900 text-slate-200 p-3 font-mono text-[10px] overflow-y-auto space-y-0.5 border border-slate-800">
+                    <p class="text-slate-500">// Ready. Press "Start Network Ping" to begin scan.</p>
                 </div>
             </div>
 
             <!-- Footer Action Buttons -->
-            <div class="flex items-center justify-end gap-2 pt-1 border-t border-slate-100">
+            <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
                 <button
                     type="button"
                     id="btnModalCancel"
                     onclick="cancelOrCloseModal()"
-                    class="px-3 py-1.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">
+                    class="px-3.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">
                     Close
                 </button>
 
@@ -463,7 +477,7 @@
                     type="button"
                     id="btnRunBatchPing"
                     onclick="runBatchPingExecution()"
-                    class="px-4 py-1.5 rounded bg-[#15803d] hover:bg-[#16a34a] text-white text-xs font-bold transition flex items-center gap-1.5 shadow-xs">
+                    class="px-4 py-1.5 rounded-lg bg-[#0072bc] hover:bg-[#005b9f] text-white text-xs font-bold transition flex items-center gap-1.5 shadow-xs">
                     <svg id="batchPingIcon" xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
                     </svg>
@@ -478,13 +492,128 @@
 
 @push('scripts')
 <script>
-    // Embedded Device Inventory (Direct from Blade - No extra AJAX needed)
+    // Embedded Device Inventory (Direct from Blade)
     const clientDevices = {!! json_encode($devices->values()) !!};
 
     let isPingRunning = false;
     let cancelPing = false;
     let autoRefreshTimer = null;
     let countdownValue = 45;
+
+    // Sound control state (persisted in localStorage)
+    let isSoundMuted = localStorage.getItem('fids_sound_muted') === 'true';
+
+    // Initialize sound UI on load
+    function initSoundUI() {
+        const soundIcon = document.getElementById('soundIcon');
+        const soundLabel = document.getElementById('soundLabel');
+        const btnToggle = document.getElementById('btnToggleSound');
+
+        if (isSoundMuted) {
+            if (soundIcon) soundIcon.innerText = '🔇';
+            if (soundLabel) soundLabel.innerText = 'Muted';
+            if (btnToggle) btnToggle.className = 'px-2.5 py-1 rounded-lg border border-slate-300 bg-slate-100 text-slate-500 text-[11px] font-semibold transition flex items-center gap-1.5 shadow-2xs';
+        } else {
+            if (soundIcon) soundIcon.innerText = '🔊';
+            if (soundLabel) soundLabel.innerText = 'Unmuted';
+            if (btnToggle) btnToggle.className = 'px-2.5 py-1 rounded-lg border border-[#0072bc] bg-blue-50 text-[#0072bc] text-[11px] font-semibold transition flex items-center gap-1.5 shadow-2xs';
+        }
+    }
+
+    // Toggle Sound Control (Muted <-> Unmuted)
+    function toggleSoundControl() {
+        isSoundMuted = !isSoundMuted;
+        localStorage.setItem('fids_sound_muted', isSoundMuted ? 'true' : 'false');
+        initSoundUI();
+
+        // Rule: When switching from Muted -> Unmuted:
+        // Check if there is currently at least ONE offline/alert device. If so, play sound ONCE immediately.
+        if (!isSoundMuted) {
+            const offlineEl = document.getElementById('legendOffline');
+            const offlineCount = parseInt(offlineEl?.innerText || '0', 10);
+            if (offlineCount > 0) {
+                playAlertChime();
+            }
+        }
+    }
+
+    // Emergency Alarm Siren (Authentic Emergency Klaxon / Warning Horn - Loud & Short)
+    function playAlertChime() {
+        if (isSoundMuted) return;
+
+        try {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (!AudioCtx) return;
+
+            const ctx = new AudioCtx();
+            const now = ctx.currentTime;
+            const totalDuration = 0.65; // Durasi pendek-sedang, padat & tegas
+
+            // Triple Oscillator setup for authentic metallic alarm horn
+            const osc1 = ctx.createOscillator();
+            const osc2 = ctx.createOscillator();
+            const osc3 = ctx.createOscillator();
+            
+            // Resonant Filter for acoustic horn sound
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(3200, now);
+            filter.Q.setValueAtTime(3.5, now);
+
+            const gainNode = ctx.createGain();
+
+            osc1.type = 'sawtooth';
+            osc2.type = 'square';
+            osc3.type = 'sawtooth';
+
+            // Siren Wave 1 (0.0s -> 0.30s): 550Hz -> 1400Hz -> 650Hz
+            osc1.frequency.setValueAtTime(550, now);
+            osc1.frequency.exponentialRampToValueAtTime(1400, now + 0.17);
+            osc1.frequency.exponentialRampToValueAtTime(650, now + 0.30);
+
+            osc2.frequency.setValueAtTime(550, now);
+            osc2.frequency.exponentialRampToValueAtTime(1400, now + 0.17);
+            osc2.frequency.exponentialRampToValueAtTime(650, now + 0.30);
+
+            // Siren Wave 2 (0.31s -> 0.62s): 650Hz -> 1450Hz -> 680Hz
+            osc1.frequency.setValueAtTime(650, now + 0.31);
+            osc1.frequency.exponentialRampToValueAtTime(1450, now + 0.48);
+            osc1.frequency.exponentialRampToValueAtTime(680, now + 0.62);
+
+            osc2.frequency.setValueAtTime(650, now + 0.31);
+            osc2.frequency.exponentialRampToValueAtTime(1450, now + 0.48);
+            osc2.frequency.exponentialRampToValueAtTime(680, now + 0.62);
+
+            // Metallic 2nd Harmonic Layer
+            osc3.frequency.setValueAtTime(1100, now);
+            osc3.frequency.exponentialRampToValueAtTime(2800, now + 0.17);
+            osc3.frequency.exponentialRampToValueAtTime(1300, now + 0.30);
+            osc3.frequency.setValueAtTime(1300, now + 0.31);
+            osc3.frequency.exponentialRampToValueAtTime(2900, now + 0.48);
+            osc3.frequency.exponentialRampToValueAtTime(1360, now + 0.62);
+
+            // Loud & Crisp Volume Output (Gain 0.9)
+            gainNode.gain.setValueAtTime(0.01, now);
+            gainNode.gain.linearRampToValueAtTime(0.9, now + 0.03);
+            gainNode.gain.setValueAtTime(0.9, now + 0.55);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, now + totalDuration);
+
+            osc1.connect(filter);
+            osc2.connect(filter);
+            osc3.connect(filter);
+            filter.connect(gainNode);
+            gainNode.connect(ctx.destination);
+
+            osc1.start(now);
+            osc2.start(now);
+            osc3.start(now);
+            osc1.stop(now + totalDuration);
+            osc2.stop(now + totalDuration);
+            osc3.stop(now + totalDuration);
+        } catch (e) {
+            console.warn('Audio siren alert error:', e);
+        }
+    }
 
     // View Switcher (Tree View vs Card Grid View)
     function setViewMode(mode) {
@@ -500,14 +629,14 @@
             treeContainer.classList.add('hidden');
             tableContainer.classList.remove('hidden');
 
-            tabTable.className = 'px-2 py-0.5 rounded text-[11px] font-semibold transition flex items-center gap-1 bg-[#15803d] text-white shadow-xs';
-            tabTree.className = 'px-2 py-0.5 rounded text-[11px] font-semibold transition flex items-center gap-1 text-emerald-300/70 hover:text-white';
+            tabTable.className = 'px-2.5 py-1 rounded-md text-[11px] font-semibold transition flex items-center gap-1.5 bg-[#0072bc] text-white shadow-xs';
+            tabTree.className = 'px-2.5 py-1 rounded-md text-[11px] font-semibold transition flex items-center gap-1.5 text-slate-600 hover:text-slate-900';
         } else {
             tableContainer.classList.add('hidden');
             treeContainer.classList.remove('hidden');
 
-            tabTree.className = 'px-2 py-0.5 rounded text-[11px] font-semibold transition flex items-center gap-1 bg-[#15803d] text-white shadow-xs';
-            tabTable.className = 'px-2 py-0.5 rounded text-[11px] font-semibold transition flex items-center gap-1 text-emerald-300/70 hover:text-white';
+            tabTree.className = 'px-2.5 py-1 rounded-md text-[11px] font-semibold transition flex items-center gap-1.5 bg-[#0072bc] text-white shadow-xs';
+            tabTable.className = 'px-2.5 py-1 rounded-md text-[11px] font-semibold transition flex items-center gap-1.5 text-slate-600 hover:text-slate-900';
         }
 
         const url = new URL(window.location);
@@ -515,7 +644,7 @@
         window.history.replaceState({}, '', url);
     }
 
-    // Auto-refresh countdown
+    // Auto-refresh countdown (Rule: NEVER plays sound on auto-refresh)
     function startAutoRefreshCountdown() {
         if (autoRefreshTimer) clearInterval(autoRefreshTimer);
         countdownValue = 45;
@@ -534,7 +663,7 @@
         }, 1000);
     }
 
-    // Refresh status data from backend JSON feed
+    // Refresh status data from backend JSON feed (Visual updates only, NO sound)
     async function refreshStatusData() {
         const btn = document.getElementById('btnRefreshStatus');
         const spinner = document.getElementById('refreshSpinner');
@@ -612,7 +741,7 @@
                 const badgeEl = node.querySelector('.node-tooltip-badge');
                 if (badgeEl) {
                     badgeEl.innerText = dev.status;
-                    badgeEl.className = 'node-tooltip-badge px-1 py-0.2 rounded text-[8px] font-bold uppercase ' + 
+                    badgeEl.className = 'node-tooltip-badge px-1.5 py-0.2 rounded text-[8px] font-bold uppercase ' + 
                         (dev.status === 'online' ? 'bg-emerald-900 text-emerald-300' : 
                         (dev.status === 'warning' ? 'bg-amber-900 text-amber-300' : 
                         (dev.status === 'maintenance' ? 'bg-slate-800 text-slate-300' : 'bg-rose-900 text-rose-300')));
@@ -705,7 +834,7 @@
         closePingModal();
     }
 
-    // FAST CONCURRENT BATCH PING SWEEP
+    // BATCH PING SWEEP WITH SOUND TRIGGER RULE
     async function runBatchPingExecution() {
         if (isPingRunning) return;
 
@@ -735,13 +864,11 @@
         btn.disabled = true;
         label.innerText = 'Scanning Network...';
         icon.classList.add('animate-spin');
-        consoleBox.innerHTML = '<p class="text-emerald-400 font-bold">[START] Sending ICMP ping requests to Airport LAN...</p>';
+        consoleBox.innerHTML = '<p class="text-blue-400 font-bold">[START] Sending ICMP ping requests to Airport LAN...</p>';
 
         try {
-            // Use embedded device list directly
             let allDevices = clientDevices;
 
-            // Fallback: If clientDevices is empty, fetch from API
             if (!allDevices || allDevices.length === 0) {
                 const dataRes = await fetch('/monitoring/data', { headers: { 'Accept': 'application/json' } });
                 const dataObj = await dataRes.json();
@@ -757,7 +884,7 @@
 
             consoleBox.innerHTML += `<p class="text-slate-300">[INFO] Loaded ${total} devices. Executing concurrent chunked ping...</p>`;
 
-            const chunkSize = 8; // Optimal chunk size for fast ICMP feedback
+            const chunkSize = 8;
             const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
             let processed = 0;
 
@@ -799,7 +926,6 @@
                         }
                     });
 
-                    // Live update UI nodes & counters immediately
                     updateDeviceNodes(chunkData.results);
                     if (chunkData.stats) {
                         updateStatsCards(chunkData.stats);
@@ -819,6 +945,14 @@
 
             consoleBox.innerHTML += `<p class="text-emerald-400 font-bold mt-1">[COMPLETE] Scan finished: ${onlineCount} Online, ${warningCount} Warning, ${offlineCount} Offline.</p>`;
             consoleBox.scrollTop = consoleBox.scrollHeight;
+
+            // RULE: Wait until the ENTIRE ping sweep has finished across all devices.
+            // If one or more devices are Offline/Down/Alert (or Warning) -> Play notification sound ONCE.
+            // If all devices are Online/Normal -> Do not play sound.
+            if ((offlineCount > 0 || warningCount > 0) && !isSoundMuted) {
+                playAlertChime();
+            }
+
             refreshStatusData();
 
         } catch (err) {
@@ -833,6 +967,7 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+        initSoundUI();
         startAutoRefreshCountdown();
     });
 </script>

@@ -3,17 +3,21 @@
 namespace App\Http\Controllers;
 
 use App\Models\Device;
+use App\Models\DeviceLog;
+use App\Models\DeviceNotification;
+use App\Services\PingService;
 use Illuminate\Http\Request;
 
 class DeviceController extends Controller
 {
- 
+    /**
+     * Display a listing of devices.
+     */
     public function index(Request $request)
     {
-            $query = Device::query();
+        $query = Device::query();
 
-
-             if ($request->filled('search')) {
+        if ($request->filled('search')) {
             $search = $request->search;
 
             $query->where(function ($q) use ($search) {
@@ -27,14 +31,13 @@ class DeviceController extends Controller
             $query->where('location', $request->location);
         }
 
-
         if ($request->filled('status') && in_array($request->status, ['online', 'offline', 'warning', 'maintenance'])) {
             $query->where('status', $request->status);
         }
 
         $devices = $query
             ->orderBy('device_name')
-            ->paginate(15)
+            ->paginate(20)
             ->withQueryString();
 
         $locations = Device::select('location')
@@ -70,5 +73,53 @@ class DeviceController extends Controller
             'logs',
             'notifications'
         ));
+    }
+
+    /**
+     * Toggle Maintenance mode for a specific device.
+     */
+    public function toggleMaintenance(Request $request, Device $device, PingService $pingService)
+    {
+        $oldStatus = $device->status ?? 'offline';
+
+        if ($oldStatus === 'maintenance') {
+            // Exit Maintenance: ping device to restore live network status
+            $pingResult = $pingService->pingDevice($device);
+            $newStatus = $pingResult['status'];
+
+            $message = "Perangkat '{$device->device_name}' berhasil dikeluarkan dari mode Maintenance. Status live saat ini: " . strtoupper($newStatus) . " (" . ($pingResult['response_time'] !== null ? $pingResult['response_time'] . ' ms' : 'Unreachable') . ").";
+        } else {
+            // Enter Maintenance
+            $device->status = 'maintenance';
+            $device->response_time = null;
+            $device->save();
+
+            DeviceLog::create([
+                'device_id' => $device->id,
+                'old_status' => $oldStatus,
+                'new_status' => 'maintenance',
+                'response_time' => null,
+                'checked_at' => now(),
+            ]);
+
+            DeviceNotification::create([
+                'device_id' => $device->id,
+                'message' => "Perangkat '{$device->device_name}' ({$device->ip_address}) pada lokasi '{$device->location}' telah ditandai dalam status MAINTENANCE / Pemeliharaan Teknisi.",
+                'is_read' => false,
+            ]);
+
+            $message = "Perangkat '{$device->device_name}' berhasil dialihkan ke status MAINTENANCE / Pemeliharaan.";
+        }
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'status' => $device->status,
+                'response_time' => $device->response_time,
+            ]);
+        }
+
+        return back()->with('success', $message);
     }
 }

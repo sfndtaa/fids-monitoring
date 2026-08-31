@@ -1,11 +1,11 @@
 <x-guest-layout>
 
-    <div class="bg-white rounded-2xl shadow-lg border border-slate-200 p-8 sm:p-9 space-y-6">
+    <div class="bg-white rounded-2xl shadow-xl border border-slate-200 p-8 sm:p-9 space-y-6">
         
         <!-- Header & Logo -->
         <div class="text-center space-y-2">
-            <img src="{{ asset('images/logo.png') }}" alt="InJourney Airports" class="h-12 mx-auto object-contain">
-            <p class="text-xs font-semibold text-slate-500 tracking-wide uppercase">
+            <img src="{{ asset('images/angkasapura-logo.jpg') }}" alt="Angkasa Pura | Airports" class="h-10 mx-auto object-contain">
+            <p class="text-xs font-bold text-[#0072bc] tracking-wider uppercase">
                 FIDS Monitoring System
             </p>
         </div>
@@ -44,7 +44,7 @@
                     autofocus
                     autocomplete="username"
                     placeholder="nama@gmail.com"
-                    class="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-300 bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-800 focus:border-slate-800 transition">
+                    class="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-300 bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0072bc] focus:border-[#0072bc] transition">
             </div>
 
             <!-- Password -->
@@ -54,7 +54,7 @@
                         Password
                     </label>
                     @if (Route::has('password.request'))
-                        <a href="{{ route('password.request') }}" class="text-[11px] text-slate-500 hover:text-slate-900 hover:underline">
+                        <a href="{{ route('password.request') }}" class="text-[11px] text-[#0072bc] hover:underline">
                             Lupa password?
                         </a>
                     @endif
@@ -68,7 +68,7 @@
                         required
                         autocomplete="current-password"
                         placeholder="••••••••"
-                        class="w-full px-3.5 pr-10 py-2.5 text-xs rounded-xl border border-slate-300 bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-800 focus:border-slate-800 transition">
+                        class="w-full px-3.5 pr-10 py-2.5 text-xs rounded-xl border border-slate-300 bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0072bc] focus:border-[#0072bc] transition">
                     
                     <button
                         type="button"
@@ -90,7 +90,7 @@
                         id="remember_me"
                         type="checkbox"
                         name="remember"
-                        class="w-4 h-4 rounded text-slate-800 border-slate-300 focus:ring-slate-800 cursor-pointer">
+                        class="w-4 h-4 rounded text-[#0072bc] border-slate-300 focus:ring-[#0072bc] cursor-pointer">
                     <span class="text-xs text-slate-600">
                         Ingat saya
                     </span>
@@ -101,7 +101,7 @@
             <div class="pt-2">
                 <button
                     type="submit"
-                    class="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold shadow-md transition">
+                    class="w-full py-2.5 px-4 rounded-xl bg-[#0072bc] hover:bg-[#005b9f] text-white text-xs font-semibold shadow-md transition">
                     Login
                 </button>
             </div>
@@ -111,7 +111,7 @@
         <div class="text-center pt-2 border-t border-slate-100">
             <p class="text-slate-500 text-xs">
                 Belum punya akun?
-                <a href="{{ route('register') }}" class="text-slate-900 font-bold hover:underline">
+                <a href="{{ route('register') }}" class="text-[#0072bc] font-bold hover:underline">
                     Daftar
                 </a>
             </p>

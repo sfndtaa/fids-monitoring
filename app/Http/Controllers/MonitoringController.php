@@ -9,7 +9,9 @@ use Illuminate\Http\Request;
 
 class MonitoringController extends Controller
 {
-    
+    /**
+     * Display monitoring dashboard (Tree & Card Grid view).
+     */
     public function index(Request $request)
     {
         $statusFilter = $request->get('status', 'all');
@@ -26,12 +28,28 @@ class MonitoringController extends Controller
             'maintenance' => $allDevices->where('status', 'maintenance')->count(),
         ];
 
-        $locations = Device::select('location')
+        // Retrieve raw distinct locations
+        $rawLocations = Device::select('location')
             ->whereNotNull('location')
             ->where('location', '!=', '')
             ->distinct()
             ->orderBy('location')
             ->pluck('location');
+
+        // Normalize locations list (consolidate BMID into single 'BMID')
+        $normalizedLocations = collect();
+        $hasBmid = false;
+        foreach ($rawLocations as $loc) {
+            if (preg_match('/^BMID/i', trim($loc))) {
+                if (!$hasBmid) {
+                    $normalizedLocations->push('BMID');
+                    $hasBmid = true;
+                }
+            } else {
+                $normalizedLocations->push($loc);
+            }
+        }
+        $locations = $normalizedLocations->unique()->sort()->values();
 
         $query = Device::query();
 
@@ -40,7 +58,12 @@ class MonitoringController extends Controller
         }
 
         if ($locationFilter !== 'all' && !empty($locationFilter)) {
-            if ($locationFilter === '_unassigned_') {
+            if ($locationFilter === 'BMID') {
+                $query->where(function ($q) {
+                    $q->where('location', 'like', 'BMID%')
+                      ->orWhere('device_name', 'like', 'BMID%');
+                });
+            } elseif ($locationFilter === '_unassigned_') {
                 $query->where(function ($q) {
                     $q->whereNull('location')->orWhere('location', '');
                 });
@@ -61,11 +84,19 @@ class MonitoringController extends Controller
 
         $tableDevices = (clone $query)
             ->orderBy('device_name')
-            ->paginate(20)
+            ->paginate(24)
             ->withQueryString();
 
+        // Group devices cleanly into branches (Unified BMID grouping)
         $groupedDevices = $devices->groupBy(function ($device) {
             $loc = trim($device->location ?? '');
+            $name = trim($device->device_name ?? '');
+
+            // Consolidate BMID devices into single branch
+            if (preg_match('/^BMID/i', $loc) || preg_match('/^BMID/i', $name)) {
+                return 'BMID';
+            }
+
             return empty($loc) ? 'OTHER / UNASSIGNED' : $loc;
         })->sortKeys();
 
@@ -82,7 +113,9 @@ class MonitoringController extends Controller
         ));
     }
 
-    
+    /**
+     * Ping single device and return JSON result.
+     */
     public function ping(Device $device, PingService $pingService): JsonResponse
     {
         $result = $pingService->pingDevice($device);
@@ -92,22 +125,23 @@ class MonitoringController extends Controller
             'message' => "Ping to {$device->device_name} ({$device->ip_address}) completed.",
             'data' => $result,
         ]);
-    
     }
-    
-        public function pingBatch(Request $request, PingService $pingService): JsonResponse
+
+    /**
+     * Ping batch of devices concurrently.
+     */
+    public function pingBatch(Request $request, PingService $pingService): JsonResponse
     {
         $request->validate([
             'device_ids' => 'required|array',
             'device_ids.*' => 'integer|exists:devices,id',
-            'timeout' => 'nullable|integer|min:200|max:3000',
+            'timeout' => 'nullable|integer|min:100|max:3000',
         ]);
 
-        $timeout = $request->input('timeout', 800);
+        $timeout = (int) $request->input('timeout', 500);
         $deviceIds = $request->input('device_ids', []);
 
         $results = $pingService->pingBatch($deviceIds, $timeout);
-
 
         $allDevices = Device::all();
         $stats = [
@@ -140,10 +174,15 @@ class MonitoringController extends Controller
         ];
 
         $devices = $allDevices->map(function ($d) {
+            $loc = trim($d->location ?? '');
+            $name = trim($d->device_name ?? '');
+            $branch = (preg_match('/^BMID/i', $loc) || preg_match('/^BMID/i', $name)) ? 'BMID' : (empty($loc) ? 'OTHER / UNASSIGNED' : $loc);
+
             return [
                 'id' => $d->id,
                 'device_name' => $d->device_name,
                 'location' => $d->location ?? 'OTHER / UNASSIGNED',
+                'branch' => $branch,
                 'ip_address' => $d->ip_address,
                 'subnet' => $d->subnet,
                 'gateway' => $d->gateway,

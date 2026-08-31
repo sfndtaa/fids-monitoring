@@ -46,6 +46,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/devices/{device}', [DeviceController::class, 'show'])
         ->name('devices.show');
 
+    Route::post('/devices/{device}/toggle-maintenance', [DeviceController::class, 'toggleMaintenance'])
+        ->name('devices.toggle-maintenance');
+
 
     // Monitoring
     Route::get('/monitoring', [MonitoringController::class, 'index'])
