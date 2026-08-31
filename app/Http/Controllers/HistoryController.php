@@ -6,7 +6,7 @@ use App\Models\DeviceLog;
 use Illuminate\Http\Request;
 
 class HistoryController extends Controller
-{
+{ 
     public function index(Request $request)
     {
         $logs = DeviceLog::with('device')

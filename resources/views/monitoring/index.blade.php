@@ -9,13 +9,13 @@
         <form method="GET" action="{{ route('monitoring') }}" id="filterForm" class="flex flex-wrap items-center justify-between gap-2.5 text-xs">
             
             <!-- Left: Live Clock & Auto-refresh status -->
-            <div class="flex flex-wrap items-center gap-2.5 font-mono text-[11px]">
+            <div class="flex flex-wrap items-center gap-2 font-mono text-[11px]">
                 <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800">
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <span id="lastRefreshDisplay">[ Last Refresh: {{ now()->format('H:i:s') }} ]</span>
+                    <span id="lastRefreshDisplay">[ Last Check: {{ now()->format('H:i:s') }} ]</span>
                 </span>
                 <span class="text-emerald-400/80 hidden sm:inline">
-                    [ Refresh in <span id="autoRefreshCountdown" class="text-white font-bold">60</span>s ]
+                    [ Auto-Refresh in <span id="autoRefreshCountdown" class="text-white font-bold">45</span>s ]
                 </span>
             </div>
 
@@ -99,7 +99,8 @@
                     type="button"
                     id="btnRefreshStatus"
                     onclick="refreshStatusData()"
-                    class="px-2.5 py-1 rounded-md bg-[#0e3d23] hover:bg-[#14532d] text-emerald-200 text-[11px] font-medium transition flex items-center gap-1 border border-[#1b6b3d]">
+                    class="px-2.5 py-1 rounded-md bg-[#0e3d23] hover:bg-[#14532d] text-emerald-200 text-[11px] font-medium transition flex items-center gap-1 border border-[#1b6b3d]"
+                    title="Reload latest status from database">
                     <svg id="refreshSpinner" xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                     </svg>
@@ -110,11 +111,11 @@
                     type="button"
                     id="btnStartBatchPing"
                     onclick="openPingModal()"
-                    class="px-2.5 py-1 rounded-md bg-[#15803d] hover:bg-[#16a34a] text-white text-[11px] font-bold transition flex items-center gap-1 shadow-xs">
+                    class="px-3 py-1 rounded-md bg-[#15803d] hover:bg-[#16a34a] text-white text-[11px] font-bold transition flex items-center gap-1 shadow-sm">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
                     </svg>
-                    <span>Ping Sweep</span>
+                    <span>Ping Sweep (Scan LAN)</span>
                 </button>
             </div>
 
@@ -125,32 +126,32 @@
     <div class="bg-white rounded-md border border-slate-300 px-3 py-1.5 flex flex-wrap items-center justify-between gap-2 text-[11px]">
         <div class="flex items-center gap-1.5 font-bold text-slate-700">
             <span class="w-2 h-2 rounded-full bg-[#15803d]"></span>
-            <span>Status Summary:</span>
+            <span>Live Status:</span>
         </div>
 
         <div class="flex flex-wrap items-center gap-3 font-medium">
             <span class="flex items-center gap-1">
                 <span class="w-3 h-3 rounded-xs bg-[#16a34a] border border-[#15803d] inline-block"></span>
-                <span>Normal / Online: <strong id="legendOnline" class="font-mono text-emerald-700">{{ $stats['online'] }}</strong></span>
+                <span>Normal / Online: <strong id="legendOnline" class="font-mono text-emerald-700 font-bold">{{ $stats['online'] }}</strong></span>
             </span>
 
             <span class="flex items-center gap-1">
                 <span class="w-3 h-3 rounded-xs bg-[#dc2626] border border-[#b91c1c] inline-block"></span>
-                <span>Alert / Offline: <strong id="legendOffline" class="font-mono text-rose-700">{{ $stats['offline'] }}</strong></span>
+                <span>Alert / Offline: <strong id="legendOffline" class="font-mono text-rose-700 font-bold">{{ $stats['offline'] }}</strong></span>
             </span>
 
             <span class="flex items-center gap-1">
                 <span class="w-3 h-3 rounded-xs bg-[#d97706] border border-[#b45309] inline-block"></span>
-                <span>Warning: <strong id="legendWarning" class="font-mono text-amber-700">{{ $stats['warning'] }}</strong></span>
+                <span>Warning: <strong id="legendWarning" class="font-mono text-amber-700 font-bold">{{ $stats['warning'] }}</strong></span>
             </span>
 
             <span class="flex items-center gap-1">
                 <span class="w-3 h-3 rounded-xs bg-[#64748b] border border-[#475569] inline-block"></span>
-                <span>Maintenance: <strong id="legendMaintenance" class="font-mono text-slate-700">{{ $stats['maintenance'] }}</strong></span>
+                <span>Maintenance: <strong id="legendMaintenance" class="font-mono text-slate-700 font-bold">{{ $stats['maintenance'] }}</strong></span>
             </span>
 
             <span class="border-l border-slate-300 pl-2 text-slate-500">
-                Total: <strong id="legendTotal" class="font-mono text-slate-800">{{ $stats['total'] }}</strong>
+                Total: <strong id="legendTotal" class="font-mono text-slate-800 font-bold">{{ $stats['total'] }}</strong>
             </span>
         </div>
     </div>
@@ -163,11 +164,11 @@
             <div class="flex items-center gap-1.5">
                 <span class="w-2.5 h-2.5 rounded-xs bg-emerald-300"></span>
                 <h2 class="font-bold text-xs md:text-sm text-white tracking-wide">
-                    Tree: SAMS Sepinggan Airport FIDS Monitoring
+                    Tree: SAMS Sepinggan Airport FIDS Monitoring Infrastructure
                 </h2>
             </div>
             <span class="text-[10px] bg-[#062314]/80 px-2 py-0.5 rounded text-emerald-200 font-mono">
-                {{ $devices->count() }} Devices
+                {{ $devices->count() }} Devices Monitored
             </span>
         </div>
 
@@ -180,7 +181,7 @@
             $groupTotal = $devList->count();
         @endphp
 
-        <div class="branch-card bg-white rounded border border-slate-300 shadow-2xs overflow-hidden">
+        <div class="branch-card bg-white rounded border border-slate-300 shadow-2xs overflow-hidden" data-branch="{{ $locationName }}">
             
             <!-- Thin Green Branch Ribbon Bar -->
             <div class="px-2.5 py-1 bg-gradient-to-r from-[#166534] via-[#15803d] to-[#166534] text-white flex flex-wrap items-center justify-between gap-2 border-b border-[#0f3d24]">
@@ -193,16 +194,10 @@
                 </div>
 
                 <!-- Sub-counters -->
-                <div class="flex items-center gap-2 text-[10px] font-mono">
-                    @if($groupOnline > 0)
-                        <span class="text-emerald-100 font-semibold">{{ $groupOnline }} OK</span>
-                    @endif
-                    @if($groupWarning > 0)
-                        <span class="text-amber-200 font-bold">● {{ $groupWarning }} Warn</span>
-                    @endif
-                    @if($groupOffline > 0)
-                        <span class="text-rose-200 font-bold">● {{ $groupOffline }} Down</span>
-                    @endif
+                <div class="flex items-center gap-2 text-[10px] font-mono branch-stats">
+                    <span class="text-emerald-100 font-semibold branch-count-online">{{ $groupOnline > 0 ? $groupOnline . ' OK' : '' }}</span>
+                    <span class="text-amber-200 font-bold branch-count-warning">{{ $groupWarning > 0 ? '● ' . $groupWarning . ' Warn' : '' }}</span>
+                    <span class="text-rose-200 font-bold branch-count-offline">{{ $groupOffline > 0 ? '● ' . $groupOffline . ' Down' : '' }}</span>
                 </div>
             </div>
 
@@ -259,7 +254,7 @@
                         </div>
 
                         <!-- Device Name Label -->
-                        <span class="node-label text-[9px] font-medium leading-[11px] text-slate-800 mt-0.5 break-words line-clamp-2 max-w-[56px] group-hover:text-emerald-700 transition" title="{{ $device->device_name }}">
+                        <span class="node-label text-[9px] font-medium leading-[11px] text-slate-800 mt-0.5 break-words line-clamp-2 max-w-[56px] group-hover:text-emerald-700 transition" title="{{ $device->device_name }} ({{ $device->ip_address }})">
                             {{ $device->device_name }}
                         </span>
 
@@ -267,7 +262,7 @@
                         <div class="pointer-events-none group-hover:pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity duration-150 absolute bottom-full mb-1.5 left-1/2 -translate-x-1/2 w-44 bg-slate-950 text-white text-left p-2 rounded shadow-2xl z-50 border border-slate-700">
                             <div class="flex items-center justify-between border-b border-slate-800 pb-1 mb-1">
                                 <span class="font-bold text-[11px] truncate text-white">{{ $device->device_name }}</span>
-                                <span class="px-1 py-0.2 rounded text-[8px] font-bold uppercase
+                                <span class="node-tooltip-badge px-1 py-0.2 rounded text-[8px] font-bold uppercase
                                     {{ $device->status === 'online' ? 'bg-emerald-900 text-emerald-300' : '' }}
                                     {{ $device->status === 'offline' ? 'bg-rose-900 text-rose-300' : '' }}
                                     {{ $device->status === 'warning' ? 'bg-amber-900 text-amber-300' : '' }}
@@ -278,7 +273,7 @@
                             <div class="space-y-0.5 text-[9px] text-slate-300 font-mono">
                                 <div>IP: <span class="text-white font-semibold">{{ $device->ip_address }}</span></div>
                                 <div>Latency: <span class="node-tooltip-latency text-emerald-400 font-bold">{{ $device->response_time !== null ? $device->response_time . ' ms' : '-' }}</span></div>
-                                <div>Checked: <span class="text-slate-400">{{ $device->last_ping ? \Carbon\Carbon::parse($device->last_ping)->format('H:i:s') : 'never' }}</span></div>
+                                <div>Checked: <span class="node-tooltip-checked text-slate-400">{{ $device->last_ping ? \Carbon\Carbon::parse($device->last_ping)->format('H:i:s') : 'never' }}</span></div>
                             </div>
                         </div>
 
@@ -297,13 +292,14 @@
 
     </div>
 
-    <!-- VIEW 2: CARD GRID VIEW (KOTAK-KOTAK TERSTRUKTUR SEPERTI VERSI SEBELUMNYA) -->
+    <!-- VIEW 2: CARD GRID VIEW (KOTAK-KOTAK TERSTRUKTUR) -->
     <div id="tableViewContainer" class="{{ $viewMode === 'table' ? 'space-y-4' : 'hidden' }}">
         
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
             
             @forelse($tableDevices as $device)
             <div
+                id="card-device-{{ $device->id }}"
                 class="bg-white rounded-lg border border-slate-200 hover:border-emerald-500 shadow-xs hover:shadow-md transition p-3 flex flex-col justify-between cursor-pointer"
                 onclick="window.location.href='{{ route('devices.show', $device->id) }}'">
                 
@@ -320,23 +316,13 @@
                         </div>
 
                         <!-- Status Badge -->
-                        @if($device->status === 'online')
-                            <span class="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-emerald-100 text-emerald-800 shrink-0">
-                                Online
-                            </span>
-                        @elseif($device->status === 'warning')
-                            <span class="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-amber-100 text-amber-800 shrink-0">
-                                Warn
-                            </span>
-                        @elseif($device->status === 'maintenance')
-                            <span class="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-slate-100 text-slate-700 shrink-0">
-                                Maint
-                            </span>
-                        @else
-                            <span class="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-rose-100 text-rose-800 shrink-0">
-                                Offline
-                            </span>
-                        @endif
+                        <span class="card-status-badge px-1.5 py-0.5 rounded text-[9px] font-bold uppercase shrink-0
+                            {{ $device->status === 'online' ? 'bg-emerald-100 text-emerald-800' : '' }}
+                            {{ $device->status === 'warning' ? 'bg-amber-100 text-amber-800' : '' }}
+                            {{ $device->status === 'maintenance' ? 'bg-slate-100 text-slate-700' : '' }}
+                            {{ $device->status === 'offline' ? 'bg-rose-100 text-rose-800' : '' }}">
+                            {{ $device->status === 'warning' ? 'Warn' : ($device->status === 'maintenance' ? 'Maint' : ucfirst($device->status)) }}
+                        </span>
                     </div>
 
                     <!-- Specs details -->
@@ -347,13 +333,13 @@
                         </div>
                         <div class="flex justify-between">
                             <span class="text-slate-400">Latency:</span>
-                            <span class="font-mono font-semibold text-slate-800">
+                            <span class="card-latency font-mono font-semibold text-slate-800">
                                 {{ $device->response_time !== null ? $device->response_time . ' ms' : '-' }}
                             </span>
                         </div>
                         <div class="flex justify-between text-[10px]">
                             <span class="text-slate-400">Last Ping:</span>
-                            <span class="text-slate-500">
+                            <span class="card-lastping text-slate-500">
                                 {{ $device->last_ping ? \Carbon\Carbon::parse($device->last_ping)->format('d M H:i') : 'Never' }}
                             </span>
                         </div>
@@ -371,7 +357,7 @@
                     <button
                         type="button"
                         onclick="pingNodeDevice({{ $device->id }})"
-                        class="px-2 py-0.5 rounded bg-emerald-50 hover:bg-emerald-600 hover:text-white text-emerald-700 text-[10px] font-medium transition border border-emerald-200">
+                        class="card-ping-btn px-2 py-0.5 rounded bg-emerald-50 hover:bg-emerald-600 hover:text-white text-emerald-700 text-[10px] font-medium transition border border-emerald-200">
                         Ping
                     </button>
                 </div>
@@ -408,8 +394,8 @@
                     </svg>
                 </div>
                 <div>
-                    <h3 class="font-bold text-xs text-white">NOC Server Ping Sweep</h3>
-                    <p class="text-[10px] text-emerald-200">Sending native ICMP ping from server to LAN devices</p>
+                    <h3 class="font-bold text-xs text-white">Live Network Ping Sweep</h3>
+                    <p class="text-[10px] text-emerald-200">Executing native ICMP packets across Airport LAN</p>
                 </div>
             </div>
 
@@ -429,7 +415,7 @@
             <!-- Progress Info -->
             <div>
                 <div class="flex justify-between text-xs font-semibold text-slate-700 mb-1">
-                    <span id="pingProgressText">Ready to ping devices over LAN</span>
+                    <span id="pingProgressText">Ready to scan LAN devices</span>
                     <span id="pingProgressPercent" class="font-mono font-bold text-emerald-700">0%</span>
                 </div>
 
@@ -492,10 +478,13 @@
 
 @push('scripts')
 <script>
+    // Embedded Device Inventory (Direct from Blade - No extra AJAX needed)
+    const clientDevices = {!! json_encode($devices->values()) !!};
+
     let isPingRunning = false;
     let cancelPing = false;
     let autoRefreshTimer = null;
-    let countdownValue = 60;
+    let countdownValue = 45;
 
     // View Switcher (Tree View vs Card Grid View)
     function setViewMode(mode) {
@@ -529,27 +518,29 @@
     // Auto-refresh countdown
     function startAutoRefreshCountdown() {
         if (autoRefreshTimer) clearInterval(autoRefreshTimer);
-        countdownValue = 60;
+        countdownValue = 45;
 
         autoRefreshTimer = setInterval(() => {
+            if (isPingRunning) return; // Pause countdown while ping sweep is running
+
             countdownValue--;
             const cdEl = document.getElementById('autoRefreshCountdown');
             if (cdEl) cdEl.innerText = countdownValue;
 
             if (countdownValue <= 0) {
-                countdownValue = 60;
+                countdownValue = 45;
                 refreshStatusData();
             }
         }, 1000);
     }
 
-    // Refresh status data via JSON feed
+    // Refresh status data from backend JSON feed
     async function refreshStatusData() {
         const btn = document.getElementById('btnRefreshStatus');
         const spinner = document.getElementById('refreshSpinner');
         const lastRefresh = document.getElementById('lastRefreshDisplay');
 
-        btn.disabled = true;
+        if (btn) btn.disabled = true;
         spinner?.classList.add('animate-spin');
 
         try {
@@ -562,63 +553,113 @@
                 updateStatsCards(data.stats);
                 updateDeviceNodes(data.devices);
                 if (lastRefresh && data.timestamp) {
-                    lastRefresh.innerText = `[ Last Refresh: ${data.timestamp.split(' ')[3] || data.timestamp} ]`;
+                    const timePart = data.timestamp.split(' ').pop();
+                    lastRefresh.innerText = `[ Last Check: ${timePart || data.timestamp} ]`;
                 }
             }
         } catch (err) {
             console.error('Refresh error:', err);
         } finally {
-            btn.disabled = false;
+            if (btn) btn.disabled = false;
             spinner?.classList.remove('animate-spin');
-            countdownValue = 60;
+            countdownValue = 45;
         }
     }
 
     function updateStatsCards(stats) {
         if (!stats) return;
-        document.getElementById('legendTotal').innerText = stats.total ?? 0;
-        document.getElementById('legendOnline').innerText = stats.online ?? 0;
-        document.getElementById('legendOffline').innerText = stats.offline ?? 0;
-        document.getElementById('legendWarning').innerText = stats.warning ?? 0;
-        document.getElementById('legendMaintenance').innerText = stats.maintenance ?? 0;
+        const totalEl = document.getElementById('legendTotal');
+        const onlineEl = document.getElementById('legendOnline');
+        const offlineEl = document.getElementById('legendOffline');
+        const warningEl = document.getElementById('legendWarning');
+        const maintEl = document.getElementById('legendMaintenance');
+
+        if (totalEl) totalEl.innerText = stats.total ?? 0;
+        if (onlineEl) onlineEl.innerText = stats.online ?? 0;
+        if (offlineEl) offlineEl.innerText = stats.offline ?? 0;
+        if (warningEl) warningEl.innerText = stats.warning ?? 0;
+        if (maintEl) maintEl.innerText = stats.maintenance ?? 0;
     }
 
     function updateDeviceNodes(devices) {
         if (!devices || !Array.isArray(devices)) return;
 
         devices.forEach(dev => {
+            // Update Tree View node
             const node = document.getElementById(`node-device-${dev.id}`);
-            if (!node) return;
+            if (node) {
+                node.setAttribute('data-status', dev.status);
 
-            node.setAttribute('data-status', dev.status);
+                const svg = node.querySelector('.node-svg');
+                if (svg) {
+                    svg.className = 'node-svg w-7 h-5 transition-all duration-150';
+                    if (dev.status === 'online') {
+                        svg.classList.add('text-[#16a34a]', 'drop-shadow-2xs');
+                    } else if (dev.status === 'warning') {
+                        svg.classList.add('text-[#d97706]');
+                    } else if (dev.status === 'maintenance') {
+                        svg.classList.add('text-[#64748b]');
+                    } else {
+                        svg.classList.add('text-[#dc2626]', 'animate-pulse');
+                    }
+                }
 
-            const svg = node.querySelector('.node-svg');
-            if (svg) {
-                svg.className = 'node-svg w-7 h-5 transition-all duration-150';
-                if (dev.status === 'online') {
-                    svg.classList.add('text-[#16a34a]', 'drop-shadow-2xs');
-                } else if (dev.status === 'warning') {
-                    svg.classList.add('text-[#d97706]');
-                } else if (dev.status === 'maintenance') {
-                    svg.classList.add('text-[#64748b]');
-                } else {
-                    svg.classList.add('text-[#dc2626]', 'animate-pulse');
+                const latencyEl = node.querySelector('.node-tooltip-latency');
+                if (latencyEl) {
+                    latencyEl.innerText = dev.response_time !== null ? `${dev.response_time} ms` : '-';
+                }
+
+                const badgeEl = node.querySelector('.node-tooltip-badge');
+                if (badgeEl) {
+                    badgeEl.innerText = dev.status;
+                    badgeEl.className = 'node-tooltip-badge px-1 py-0.2 rounded text-[8px] font-bold uppercase ' + 
+                        (dev.status === 'online' ? 'bg-emerald-900 text-emerald-300' : 
+                        (dev.status === 'warning' ? 'bg-amber-900 text-amber-300' : 
+                        (dev.status === 'maintenance' ? 'bg-slate-800 text-slate-300' : 'bg-rose-900 text-rose-300')));
+                }
+
+                const checkedEl = node.querySelector('.node-tooltip-checked');
+                if (checkedEl && dev.last_ping) {
+                    checkedEl.innerText = dev.last_ping.split(' ').pop();
                 }
             }
 
-            const latencyEl = node.querySelector('.node-tooltip-latency');
-            if (latencyEl) {
-                latencyEl.innerText = dev.response_time !== null ? `${dev.response_time} ms` : '-';
+            // Update Card View node
+            const card = document.getElementById(`card-device-${dev.id}`);
+            if (card) {
+                const cardBadge = card.querySelector('.card-status-badge');
+                if (cardBadge) {
+                    cardBadge.innerText = dev.status === 'warning' ? 'Warn' : (dev.status === 'maintenance' ? 'Maint' : dev.status.charAt(0).toUpperCase() + dev.status.slice(1));
+                    cardBadge.className = 'card-status-badge px-1.5 py-0.5 rounded text-[9px] font-bold uppercase shrink-0 ' +
+                        (dev.status === 'online' ? 'bg-emerald-100 text-emerald-800' :
+                        (dev.status === 'warning' ? 'bg-amber-100 text-amber-800' :
+                        (dev.status === 'maintenance' ? 'bg-slate-100 text-slate-700' : 'bg-rose-100 text-rose-800')));
+                }
+
+                const cardLatency = card.querySelector('.card-latency');
+                if (cardLatency) {
+                    cardLatency.innerText = dev.response_time !== null ? `${dev.response_time} ms` : '-';
+                }
+
+                const cardLastPing = card.querySelector('.card-lastping');
+                if (cardLastPing && dev.last_ping) {
+                    cardLastPing.innerText = dev.last_ping;
+                }
             }
         });
     }
 
-    // Ping single device from node
+    // Ping single device on click ⚡
     async function pingNodeDevice(deviceId) {
         const node = document.getElementById(`node-device-${deviceId}`);
+        const card = document.getElementById(`card-device-${deviceId}`);
         const svg = node?.querySelector('.node-svg');
-        if (svg) {
-            svg.classList.add('opacity-50', 'animate-spin');
+        const cardBtn = card?.querySelector('.card-ping-btn');
+
+        if (svg) svg.classList.add('opacity-50', 'animate-spin');
+        if (cardBtn) {
+            cardBtn.disabled = true;
+            cardBtn.innerText = '...';
         }
 
         try {
@@ -639,20 +680,22 @@
         } catch (err) {
             console.error('Node ping error:', err);
         } finally {
-            if (svg) {
-                svg.classList.remove('opacity-50', 'animate-spin');
+            if (svg) svg.classList.remove('opacity-50', 'animate-spin');
+            if (cardBtn) {
+                cardBtn.disabled = false;
+                cardBtn.innerText = 'Ping';
             }
         }
     }
 
-    // Batch Ping Modal functions
+    // Modal controls
     function openPingModal() {
         document.getElementById('pingModal').classList.remove('hidden');
     }
 
     function closePingModal() {
         if (isPingRunning) {
-            if (!confirm('Ping sweep is currently executing. Stop and close?')) return;
+            if (!confirm('Ping sweep is currently in progress. Stop and close?')) return;
             cancelPing = true;
         }
         document.getElementById('pingModal').classList.add('hidden');
@@ -662,6 +705,7 @@
         closePingModal();
     }
 
+    // FAST CONCURRENT BATCH PING SWEEP
     async function runBatchPingExecution() {
         if (isPingRunning) return;
 
@@ -689,30 +733,37 @@
         mOffline.innerText = '0';
 
         btn.disabled = true;
-        label.innerText = 'Sweeping LAN...';
+        label.innerText = 'Scanning Network...';
         icon.classList.add('animate-spin');
-        consoleBox.innerHTML = '<p class="text-emerald-400">[INFO] Initializing LAN ICMP echo ping sweep...</p>';
+        consoleBox.innerHTML = '<p class="text-emerald-400 font-bold">[START] Sending ICMP ping requests to Airport LAN...</p>';
 
         try {
-            const dataRes = await fetch('/monitoring/data', { headers: { 'Accept': 'application/json' } });
-            const dataObj = await dataRes.json();
-            const allDevices = dataObj.devices || [];
+            // Use embedded device list directly
+            let allDevices = clientDevices;
+
+            // Fallback: If clientDevices is empty, fetch from API
+            if (!allDevices || allDevices.length === 0) {
+                const dataRes = await fetch('/monitoring/data', { headers: { 'Accept': 'application/json' } });
+                const dataObj = await dataRes.json();
+                allDevices = dataObj.devices || [];
+            }
+
             const total = allDevices.length;
 
             if (total === 0) {
-                consoleBox.innerHTML += '<p class="text-amber-400">[WARN] No devices found in inventory.</p>';
+                consoleBox.innerHTML += '<p class="text-rose-400">[ERROR] No devices found in database.</p>';
                 return;
             }
 
-            consoleBox.innerHTML += `<p class="text-slate-400">[INFO] Found ${total} registered devices. Executing concurrent chunked ping...</p>`;
+            consoleBox.innerHTML += `<p class="text-slate-300">[INFO] Loaded ${total} devices. Executing concurrent chunked ping...</p>`;
 
-            const chunkSize = 15;
+            const chunkSize = 8; // Optimal chunk size for fast ICMP feedback
             const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
             let processed = 0;
 
             for (let i = 0; i < total; i += chunkSize) {
                 if (cancelPing) {
-                    consoleBox.innerHTML += `<p class="text-amber-400">[CANCELLED] Sweep interrupted by operator.</p>`;
+                    consoleBox.innerHTML += `<p class="text-amber-400">[CANCELLED] Ping sweep cancelled by user.</p>`;
                     break;
                 }
 
@@ -728,7 +779,7 @@
                     },
                     body: JSON.stringify({
                         device_ids: chunkIds,
-                        timeout: 800
+                        timeout: 500
                     })
                 });
 
@@ -744,11 +795,15 @@
                             consoleBox.innerHTML += `<p class="text-amber-400">[WARN] ${resItem.device_name} (${resItem.ip_address}) - Latency ${resItem.response_time}ms</p>`;
                         } else {
                             offlineCount++;
-                            consoleBox.innerHTML += `<p class="text-rose-400">[DOWN] ${resItem.device_name} (${resItem.ip_address}) - Host Unreachable</p>`;
+                            consoleBox.innerHTML += `<p class="text-rose-400">[DOWN] ${resItem.device_name} (${resItem.ip_address}) - Request timed out</p>`;
                         }
                     });
 
+                    // Live update UI nodes & counters immediately
                     updateDeviceNodes(chunkData.results);
+                    if (chunkData.stats) {
+                        updateStatsCards(chunkData.stats);
+                    }
                 }
 
                 mOnline.innerText = onlineCount;
@@ -758,11 +813,11 @@
                 const percent = Math.min(100, Math.round((processed / total) * 100));
                 pBar.style.width = `${percent}%`;
                 pPercent.innerText = `${percent}%`;
-                pText.innerText = `Swept ${processed} of ${total} devices`;
+                pText.innerText = `Scanned ${processed} of ${total} devices`;
                 consoleBox.scrollTop = consoleBox.scrollHeight;
             }
 
-            consoleBox.innerHTML += `<p class="text-emerald-400 font-bold mt-1">[DONE] Ping sweep finished: ${onlineCount} Online, ${warningCount} Warning, ${offlineCount} Offline.</p>`;
+            consoleBox.innerHTML += `<p class="text-emerald-400 font-bold mt-1">[COMPLETE] Scan finished: ${onlineCount} Online, ${warningCount} Warning, ${offlineCount} Offline.</p>`;
             consoleBox.scrollTop = consoleBox.scrollHeight;
             refreshStatusData();
 
@@ -772,7 +827,7 @@
         } finally {
             isPingRunning = false;
             btn.disabled = false;
-            label.innerText = 'Run Again';
+            label.innerText = 'Run Scan Again';
             icon.classList.remove('animate-spin');
         }
     }

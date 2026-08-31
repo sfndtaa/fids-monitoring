@@ -13,13 +13,13 @@ class PingService
      * Ping single IP address from backend server.
      *
      * @param string $ip
-     * @param int $timeoutMs Timeout in milliseconds (default: 800ms)
+     * @param int $timeoutMs Timeout in milliseconds (default: 600ms)
      * @return array
      */
-    public function pingAddress(string $ip, int $timeoutMs = 800): array
+    public function pingAddress(string $ip, int $timeoutMs = 600): array
     {
         $ip = trim($ip);
-        if (empty($ip)) {
+        if (empty($ip) || !filter_var($ip, FILTER_VALIDATE_IP)) {
             return [
                 'success' => false,
                 'status' => 'offline',
@@ -32,10 +32,10 @@ class PingService
         $escapedIp = escapeshellarg($ip);
 
         if ($isWindows) {
-            // Windows: -n count, -w timeout in ms
+            // Windows: -n 1 (1 packet), -w timeout in ms
             $command = "ping -n 1 -w {$timeoutMs} {$escapedIp}";
         } else {
-            // Linux/Unix: -c count, -W timeout in seconds (minimum 1s)
+            // Linux/Unix: -c 1, -W timeout in seconds (min 1)
             $timeoutSec = max(1, (int) ceil($timeoutMs / 1000));
             $command = "ping -c 1 -W {$timeoutSec} {$escapedIp}";
         }
@@ -48,26 +48,28 @@ class PingService
         $responseTime = null;
         $isSuccess = false;
 
-        if ($resultCode === 0) {
-            // Check for reply with time
-            // Patterns: "time=12ms", "time<1ms", "time=0.456 ms"
-            if (preg_match('/time[=<]([0-9]+(?:\.[0-9]+)?)\s*ms/i', $rawOutput, $matches)) {
-                $responseTime = (int) round((float) $matches[1]);
-                if ($responseTime === 0 && str_contains($rawOutput, '<1ms')) {
+        // Check for common failure keywords in English & Indonesian Windows
+        $hasFailedKeyword = preg_match('/(unreachable|tidak dapat dijangkau|timed out|waktu habis|100% loss|100% hilang|100% packet loss|general failure|kegagalan umum|could not find host)/i', $rawOutput);
+
+        // Check for TTL presence (universal indicator of successful ICMP reply)
+        $hasTtl = preg_match('/ttl[=:]\s*([0-9]+)/i', $rawOutput);
+
+        // Check for latency / time indicator (supports English "time=Xms", Indonesian "waktu=Xms" / "waktu<1ms", "time<1ms")
+        $hasTime = preg_match('/(?:time|waktu|tempo)[=<]([0-9]+(?:\.[0-9]+)?)\s*(?:ms|md)?/i', $rawOutput, $timeMatches);
+
+        if ($resultCode === 0 && !$hasFailedKeyword && ($hasTtl || $hasTime)) {
+            $isSuccess = true;
+            if ($hasTime && isset($timeMatches[1])) {
+                $responseTime = (int) round((float) $timeMatches[1]);
+                if ($responseTime === 0 && (str_contains($rawOutput, '<1ms') || str_contains($rawOutput, '<1md') || str_contains($rawOutput, '<1 ms'))) {
                     $responseTime = 1;
                 }
-                $isSuccess = true;
-            } elseif (!str_contains($rawOutput, 'Request timed out') &&
-                      !str_contains($rawOutput, 'Destination host unreachable') &&
-                      !str_contains($rawOutput, '100% packet loss') &&
-                      !str_contains($rawOutput, '100% loss')) {
-                $isSuccess = true;
+            } else {
                 $responseTime = 1;
             }
         }
 
         if ($isSuccess) {
-            // Status warning if high latency (> 300ms)
             $status = ($responseTime !== null && $responseTime > 300) ? 'warning' : 'online';
         } else {
             $status = 'offline';
@@ -89,7 +91,7 @@ class PingService
      * @param int $timeoutMs
      * @return array
      */
-    public function pingDevice(Device $device, int $timeoutMs = 800): array
+    public function pingDevice(Device $device, int $timeoutMs = 600): array
     {
         $oldStatus = $device->status ?? 'offline';
         $result = $this->pingAddress($device->ip_address, $timeoutMs);
@@ -98,7 +100,7 @@ class PingService
         $responseTime = $result['response_time'];
         $now = Carbon::now();
 
-        // Update Device record
+        // Update Device record in database
         $device->status = $newStatus;
         $device->response_time = $responseTime;
         $device->last_ping = $now;
@@ -143,7 +145,7 @@ class PingService
      * @param int $timeoutMs
      * @return array
      */
-    public function pingBatch(array $deviceIds, int $timeoutMs = 800): array
+    public function pingBatch(array $deviceIds, int $timeoutMs = 600): array
     {
         $devices = Device::whereIn('id', $deviceIds)->get();
         $results = [];
