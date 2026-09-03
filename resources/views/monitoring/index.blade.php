@@ -537,28 +537,45 @@
         }
     }
 
-    // Emergency Alarm Siren (Authentic Emergency Klaxon / Warning Horn - Loud & Short)
+    // Emergency Alarm Siren & Web Buzzer (Continuous 2.2s Multi-Cycle Warning Siren)
+    let globalAudioCtx = null;
+    function getAudioContext() {
+        if (!globalAudioCtx) {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (AudioCtx) {
+                globalAudioCtx = new AudioCtx();
+            }
+        }
+        if (globalAudioCtx && globalAudioCtx.state === 'suspended') {
+            globalAudioCtx.resume();
+        }
+        return globalAudioCtx;
+    }
+
+    // Auto-unlock audio on any page interaction
+    document.addEventListener('click', () => { getAudioContext(); }, { passive: true });
+    document.addEventListener('keydown', () => { getAudioContext(); }, { passive: true });
+
     function playAlertChime() {
         if (isSoundMuted) return;
 
         try {
-            const AudioCtx = window.AudioContext || window.webkitAudioContext;
-            if (!AudioCtx) return;
+            const ctx = getAudioContext();
+            if (!ctx) return;
 
-            const ctx = new AudioCtx();
             const now = ctx.currentTime;
-            const totalDuration = 0.65; // Durasi pendek-sedang, padat & tegas
+            const totalDuration = 2.2; // Durasi lebih panjang (~2.2 detik)
 
             // Triple Oscillator setup for authentic metallic alarm horn
             const osc1 = ctx.createOscillator();
             const osc2 = ctx.createOscillator();
             const osc3 = ctx.createOscillator();
             
-            // Resonant Filter for acoustic horn sound
+            // Resonant Filter for acoustic horn buzzer sound
             const filter = ctx.createBiquadFilter();
             filter.type = 'lowpass';
-            filter.frequency.setValueAtTime(3200, now);
-            filter.Q.setValueAtTime(3.5, now);
+            filter.frequency.setValueAtTime(3400, now);
+            filter.Q.setValueAtTime(3.8, now);
 
             const gainNode = ctx.createGain();
 
@@ -566,36 +583,48 @@
             osc2.type = 'square';
             osc3.type = 'sawtooth';
 
-            // Siren Wave 1 (0.0s -> 0.30s): 550Hz -> 1400Hz -> 650Hz
-            osc1.frequency.setValueAtTime(550, now);
-            osc1.frequency.exponentialRampToValueAtTime(1400, now + 0.17);
-            osc1.frequency.exponentialRampToValueAtTime(650, now + 0.30);
+            // 4 Continuous Alarm Cycles (0.55s each)
+            // Cycle 1 (0.0s -> 0.55s)
+            osc1.frequency.setValueAtTime(520, now);
+            osc1.frequency.exponentialRampToValueAtTime(1450, now + 0.28);
+            osc1.frequency.exponentialRampToValueAtTime(600, now + 0.55);
+            osc2.frequency.setValueAtTime(520, now);
+            osc2.frequency.exponentialRampToValueAtTime(1450, now + 0.28);
+            osc2.frequency.exponentialRampToValueAtTime(600, now + 0.55);
 
-            osc2.frequency.setValueAtTime(550, now);
-            osc2.frequency.exponentialRampToValueAtTime(1400, now + 0.17);
-            osc2.frequency.exponentialRampToValueAtTime(650, now + 0.30);
+            // Cycle 2 (0.55s -> 1.10s)
+            osc1.frequency.exponentialRampToValueAtTime(1500, now + 0.83);
+            osc1.frequency.exponentialRampToValueAtTime(620, now + 1.10);
+            osc2.frequency.exponentialRampToValueAtTime(1500, now + 0.83);
+            osc2.frequency.exponentialRampToValueAtTime(620, now + 1.10);
 
-            // Siren Wave 2 (0.31s -> 0.62s): 650Hz -> 1450Hz -> 680Hz
-            osc1.frequency.setValueAtTime(650, now + 0.31);
-            osc1.frequency.exponentialRampToValueAtTime(1450, now + 0.48);
-            osc1.frequency.exponentialRampToValueAtTime(680, now + 0.62);
+            // Cycle 3 (1.10s -> 1.65s)
+            osc1.frequency.exponentialRampToValueAtTime(1550, now + 1.38);
+            osc1.frequency.exponentialRampToValueAtTime(640, now + 1.65);
+            osc2.frequency.exponentialRampToValueAtTime(1550, now + 1.38);
+            osc2.frequency.exponentialRampToValueAtTime(640, now + 1.65);
 
-            osc2.frequency.setValueAtTime(650, now + 0.31);
-            osc2.frequency.exponentialRampToValueAtTime(1450, now + 0.48);
-            osc2.frequency.exponentialRampToValueAtTime(680, now + 0.62);
+            // Cycle 4 (1.65s -> 2.20s)
+            osc1.frequency.exponentialRampToValueAtTime(1580, now + 1.93);
+            osc1.frequency.exponentialRampToValueAtTime(500, now + 2.20);
+            osc2.frequency.exponentialRampToValueAtTime(1580, now + 1.93);
+            osc2.frequency.exponentialRampToValueAtTime(500, now + 2.20);
 
-            // Metallic 2nd Harmonic Layer
-            osc3.frequency.setValueAtTime(1100, now);
-            osc3.frequency.exponentialRampToValueAtTime(2800, now + 0.17);
-            osc3.frequency.exponentialRampToValueAtTime(1300, now + 0.30);
-            osc3.frequency.setValueAtTime(1300, now + 0.31);
-            osc3.frequency.exponentialRampToValueAtTime(2900, now + 0.48);
-            osc3.frequency.exponentialRampToValueAtTime(1360, now + 0.62);
+            // Metallic 2nd Harmonic Layer (2x Frequency)
+            osc3.frequency.setValueAtTime(1040, now);
+            osc3.frequency.exponentialRampToValueAtTime(2900, now + 0.28);
+            osc3.frequency.exponentialRampToValueAtTime(1200, now + 0.55);
+            osc3.frequency.exponentialRampToValueAtTime(3000, now + 0.83);
+            osc3.frequency.exponentialRampToValueAtTime(1240, now + 1.10);
+            osc3.frequency.exponentialRampToValueAtTime(3100, now + 1.38);
+            osc3.frequency.exponentialRampToValueAtTime(1280, now + 1.65);
+            osc3.frequency.exponentialRampToValueAtTime(3160, now + 1.93);
+            osc3.frequency.exponentialRampToValueAtTime(1000, now + 2.20);
 
-            // Loud & Crisp Volume Output (Gain 0.9)
+            // High Volume Output (Gain 0.95 - Nyaring & Tegas)
             gainNode.gain.setValueAtTime(0.01, now);
-            gainNode.gain.linearRampToValueAtTime(0.9, now + 0.03);
-            gainNode.gain.setValueAtTime(0.9, now + 0.55);
+            gainNode.gain.linearRampToValueAtTime(0.95, now + 0.04);
+            gainNode.gain.setValueAtTime(0.95, now + 2.05);
             gainNode.gain.exponentialRampToValueAtTime(0.001, now + totalDuration);
 
             osc1.connect(filter);
@@ -611,7 +640,7 @@
             osc2.stop(now + totalDuration);
             osc3.stop(now + totalDuration);
         } catch (e) {
-            console.warn('Audio siren alert error:', e);
+            console.warn('Audio buzzer alert error:', e);
         }
     }
 
@@ -882,55 +911,87 @@
                 return;
             }
 
-            consoleBox.innerHTML += `<p class="text-slate-300">[INFO] Loaded ${total} devices. Executing concurrent chunked ping...</p>`;
+            consoleBox.innerHTML += `<p class="text-slate-300">[INFO] Loaded ${total} devices. Executing high-speed parallel ICMP ping sweep...</p>`;
 
-            const chunkSize = 8;
+            const chunkSize = 10;
             const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
             let processed = 0;
 
+            // Split all devices into chunks of 10
+            const chunks = [];
             for (let i = 0; i < total; i += chunkSize) {
+                chunks.push(allDevices.slice(i, i + chunkSize));
+            }
+
+            // Process chunks in concurrent batches of 2 parallel requests
+            const concurrency = 2;
+            for (let c = 0; c < chunks.length; c += concurrency) {
                 if (cancelPing) {
                     consoleBox.innerHTML += `<p class="text-amber-400">[CANCELLED] Ping sweep cancelled by user.</p>`;
                     break;
                 }
 
-                const chunk = allDevices.slice(i, i + chunkSize);
-                const chunkIds = chunk.map(d => d.id);
+                const currentBatch = chunks.slice(c, c + concurrency);
 
-                const res = await fetch('/monitoring/ping-batch', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': token,
-                        'Accept': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        device_ids: chunkIds,
-                        timeout: 500
-                    })
-                });
-
-                const chunkData = await res.json();
-                if (chunkData.success && chunkData.results) {
-                    chunkData.results.forEach(resItem => {
-                        processed++;
-                        if (resItem.status === 'online') {
-                            onlineCount++;
-                            consoleBox.innerHTML += `<p class="text-emerald-400">[ONLINE] ${resItem.device_name} (${resItem.ip_address}) - ${resItem.response_time}ms</p>`;
-                        } else if (resItem.status === 'warning') {
-                            warningCount++;
-                            consoleBox.innerHTML += `<p class="text-amber-400">[WARN] ${resItem.device_name} (${resItem.ip_address}) - Latency ${resItem.response_time}ms</p>`;
-                        } else {
-                            offlineCount++;
-                            consoleBox.innerHTML += `<p class="text-rose-400">[DOWN] ${resItem.device_name} (${resItem.ip_address}) - Request timed out</p>`;
+                // Highlight nodes currently being scanned with active radar glow
+                currentBatch.forEach(chunk => {
+                    chunk.forEach(dev => {
+                        const node = document.getElementById(`node-device-${dev.id}`);
+                        if (node) {
+                            const svg = node.querySelector('.node-svg');
+                            if (svg) svg.classList.add('opacity-70', 'animate-pulse');
                         }
                     });
+                });
 
-                    updateDeviceNodes(chunkData.results);
-                    if (chunkData.stats) {
-                        updateStatsCards(chunkData.stats);
+                // Execute batch requests in parallel
+                const batchPromises = currentBatch.map(async (chunk) => {
+                    const chunkIds = chunk.map(d => d.id);
+                    try {
+                        const res = await fetch('/monitoring/ping-batch', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': token,
+                                'Accept': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                device_ids: chunkIds,
+                                timeout: 400
+                            })
+                        });
+                        return await res.json();
+                    } catch (e) {
+                        return { success: false, error: e.message, results: [] };
                     }
-                }
+                });
+
+                const batchResponses = await Promise.all(batchPromises);
+
+                batchResponses.forEach(chunkData => {
+                    if (chunkData && chunkData.success && chunkData.results) {
+                        chunkData.results.forEach(resItem => {
+                            processed++;
+                            if (resItem.status === 'online') {
+                                onlineCount++;
+                                consoleBox.innerHTML += `<p class="text-emerald-400">[ONLINE] ${resItem.device_name} (${resItem.ip_address}) - ${resItem.response_time}ms</p>`;
+                            } else if (resItem.status === 'warning') {
+                                warningCount++;
+                                consoleBox.innerHTML += `<p class="text-amber-400">[WARN] ${resItem.device_name} (${resItem.ip_address}) - Latency ${resItem.response_time}ms</p>`;
+                            } else if (resItem.status === 'maintenance') {
+                                consoleBox.innerHTML += `<p class="text-slate-400">[MAINT] ${resItem.device_name} (${resItem.ip_address}) - Maintenance mode</p>`;
+                            } else {
+                                offlineCount++;
+                                consoleBox.innerHTML += `<p class="text-rose-400">[DOWN] ${resItem.device_name} (${resItem.ip_address}) - Timed out</p>`;
+                            }
+                        });
+
+                        updateDeviceNodes(chunkData.results);
+                        if (chunkData.stats) {
+                            updateStatsCards(chunkData.stats);
+                        }
+                    }
+                });
 
                 mOnline.innerText = onlineCount;
                 mWarning.innerText = warningCount;
@@ -939,7 +1000,7 @@
                 const percent = Math.min(100, Math.round((processed / total) * 100));
                 pBar.style.width = `${percent}%`;
                 pPercent.innerText = `${percent}%`;
-                pText.innerText = `Scanned ${processed} of ${total} devices`;
+                pText.innerText = `Scanned ${processed} of ${total} devices (${percent}%)`;
                 consoleBox.scrollTop = consoleBox.scrollHeight;
             }
 
