@@ -13,10 +13,10 @@ class PingService
      * Ping single IP address from backend server.
      *
      * @param string $ip
-     * @param int $timeoutMs Timeout in milliseconds (default: 600ms)
+     * @param int $timeoutMs Timeout in milliseconds (default: 400ms)
      * @return array
      */
-    public function pingAddress(string $ip, int $timeoutMs = 600): array
+    public function pingAddress(string $ip, int $timeoutMs = 400): array
     {
         $ip = trim($ip);
         if (empty($ip) || !filter_var($ip, FILTER_VALIDATE_IP)) {
@@ -91,7 +91,7 @@ class PingService
      * @param int $timeoutMs
      * @return array
      */
-    public function pingDevice(Device $device, int $timeoutMs = 600): array
+    public function pingDevice(Device $device, int $timeoutMs = 400): array
     {
         $oldStatus = $device->status ?? 'offline';
         $result = $this->pingAddress($device->ip_address, $timeoutMs);
@@ -115,13 +115,30 @@ class PingService
             'checked_at' => $now,
         ]);
 
-        // Trigger notification if device went offline
-        if ($oldStatus === 'online' && $newStatus === 'offline') {
-            DeviceNotification::create([
-                'device_id' => $device->id,
-                'message' => "Device '{$device->device_name}' ({$device->ip_address}) pada lokasi '{$device->location}' terputus / offline.",
-                'is_read' => false,
-            ]);
+        // Trigger notification if device status changes
+        if ($oldStatus !== $newStatus) {
+            if ($newStatus === 'offline') {
+                DeviceNotification::create([
+                    'device_id' => $device->id,
+                    'type' => 'offline',
+                    'message' => "Device '{$device->device_name}' ({$device->ip_address}) pada lokasi '{$device->location}' terputus / offline.",
+                    'is_read' => false,
+                ]);
+            } elseif ($newStatus === 'warning') {
+                DeviceNotification::create([
+                    'device_id' => $device->id,
+                    'type' => 'warning',
+                    'message' => "Device '{$device->device_name}' ({$device->ip_address}) pada lokasi '{$device->location}' mengalami lonjakan latency tinggi ({$responseTime} ms).",
+                    'is_read' => false,
+                ]);
+            } elseif ($oldStatus === 'offline' && $newStatus === 'online') {
+                DeviceNotification::create([
+                    'device_id' => $device->id,
+                    'type' => 'online',
+                    'message' => "Device '{$device->device_name}' ({$device->ip_address}) pada lokasi '{$device->location}' kembali NORMAL / Online ({$responseTime} ms).",
+                    'is_read' => false,
+                ]);
+            }
         }
 
         return [
@@ -139,19 +156,164 @@ class PingService
     }
 
     /**
-     * Ping multiple devices by array of IDs.
+     * Ping multiple devices in parallel using concurrent processes.
      *
      * @param array $deviceIds
      * @param int $timeoutMs
      * @return array
      */
-    public function pingBatch(array $deviceIds, int $timeoutMs = 600): array
+    public function pingBatch(array $deviceIds, int $timeoutMs = 400): array
     {
         $devices = Device::whereIn('id', $deviceIds)->get();
-        $results = [];
+        if ($devices->isEmpty()) {
+            return [];
+        }
 
+        $isWindows = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+        $processes = [];
+
+        // Launch parallel OS ping processes
         foreach ($devices as $device) {
-            $results[] = $this->pingDevice($device, $timeoutMs);
+            $ip = trim($device->ip_address);
+            if (empty($ip) || !filter_var($ip, FILTER_VALIDATE_IP)) {
+                $processes[] = [
+                    'device' => $device,
+                    'proc' => null,
+                    'pipes' => null,
+                    'invalid' => true,
+                ];
+                continue;
+            }
+
+            $escapedIp = escapeshellarg($ip);
+            if ($isWindows) {
+                $cmd = "ping -n 1 -w {$timeoutMs} {$escapedIp}";
+            } else {
+                $timeoutSec = max(1, (int) ceil($timeoutMs / 1000));
+                $cmd = "ping -c 1 -W {$timeoutSec} {$escapedIp}";
+            }
+
+            $descriptors = [
+                0 => ['pipe', 'r'],
+                1 => ['pipe', 'w'],
+                2 => ['pipe', 'w'],
+            ];
+
+            $proc = @proc_open($cmd, $descriptors, $pipes);
+            $processes[] = [
+                'device' => $device,
+                'proc' => is_resource($proc) ? $proc : null,
+                'pipes' => is_resource($proc) ? $pipes : null,
+                'invalid' => false,
+            ];
+        }
+
+        $results = [];
+        $now = Carbon::now();
+
+        // Read results from all processes concurrently
+        foreach ($processes as $item) {
+            $device = $item['device'];
+            $oldStatus = $device->status ?? 'offline';
+
+            if ($item['invalid'] || !$item['proc']) {
+                $newStatus = 'offline';
+                $responseTime = null;
+                $isSuccess = false;
+                $rawOutput = 'Invalid IP address or process error';
+            } else {
+                $proc = $item['proc'];
+                $pipes = $item['pipes'];
+
+                $stdout = stream_get_contents($pipes[1]);
+                $stderr = stream_get_contents($pipes[2]);
+                fclose($pipes[0]);
+                fclose($pipes[1]);
+                fclose($pipes[2]);
+                $exitCode = proc_close($proc);
+
+                $rawOutput = $stdout . "\n" . $stderr;
+
+                $hasFailedKeyword = preg_match('/(unreachable|tidak dapat dijangkau|timed out|waktu habis|100% loss|100% hilang|100% packet loss|general failure|kegagalan umum|could not find host)/i', $rawOutput);
+                $hasTtl = preg_match('/ttl[=:]\s*([0-9]+)/i', $rawOutput);
+                $hasTime = preg_match('/(?:time|waktu|tempo)[=<]([0-9]+(?:\.[0-9]+)?)\s*(?:ms|md)?/i', $rawOutput, $timeMatches);
+
+                $isSuccess = false;
+                $responseTime = null;
+
+                if ($exitCode === 0 && !$hasFailedKeyword && ($hasTtl || $hasTime)) {
+                    $isSuccess = true;
+                    if ($hasTime && isset($timeMatches[1])) {
+                        $responseTime = (int) round((float) $timeMatches[1]);
+                        if ($responseTime === 0 && (str_contains($rawOutput, '<1ms') || str_contains($rawOutput, '<1md') || str_contains($rawOutput, '<1 ms'))) {
+                            $responseTime = 1;
+                        }
+                    } else {
+                        $responseTime = 1;
+                    }
+                }
+
+                if ($isSuccess) {
+                    $newStatus = ($responseTime !== null && $responseTime > 300) ? 'warning' : 'online';
+                } else {
+                    $newStatus = 'offline';
+                    $responseTime = null;
+                }
+            }
+
+            // Update database record
+            $device->status = $newStatus;
+            $device->response_time = $responseTime;
+            $device->last_ping = $now;
+            $device->save();
+
+            // Record log
+            DeviceLog::create([
+                'device_id' => $device->id,
+                'old_status' => $oldStatus,
+                'new_status' => $newStatus,
+                'response_time' => $responseTime,
+                'checked_at' => $now,
+            ]);
+
+            // Create notification on status changes
+            if ($oldStatus !== $newStatus) {
+                if ($newStatus === 'offline') {
+                    DeviceNotification::create([
+                        'device_id' => $device->id,
+                        'type' => 'offline',
+                        'message' => "Device '{$device->device_name}' ({$device->ip_address}) pada lokasi '{$device->location}' terputus / offline.",
+                        'is_read' => false,
+                    ]);
+                } elseif ($newStatus === 'warning') {
+                    DeviceNotification::create([
+                        'device_id' => $device->id,
+                        'type' => 'warning',
+                        'message' => "Device '{$device->device_name}' ({$device->ip_address}) pada lokasi '{$device->location}' mengalami lonjakan latency tinggi ({$responseTime} ms).",
+                        'is_read' => false,
+                    ]);
+                } elseif ($oldStatus === 'offline' && $newStatus === 'online') {
+                    DeviceNotification::create([
+                        'device_id' => $device->id,
+                        'type' => 'online',
+                        'message' => "Device '{$device->device_name}' ({$device->ip_address}) pada lokasi '{$device->location}' kembali NORMAL / Online ({$responseTime} ms).",
+                        'is_read' => false,
+                    ]);
+                }
+            }
+
+            $results[] = [
+                'id' => $device->id,
+                'device_name' => $device->device_name,
+                'location' => $device->location,
+                'ip_address' => $device->ip_address,
+                'status' => $newStatus,
+                'old_status' => $oldStatus,
+                'response_time' => $responseTime,
+                'last_ping' => $now->format('d M Y H:i:s'),
+                'last_ping_human' => $now->diffForHumans(),
+                'success' => $isSuccess,
+            ];
         }
 
         return $results;

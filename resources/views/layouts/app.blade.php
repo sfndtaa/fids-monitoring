@@ -378,6 +378,87 @@ $currentUser = auth()->user();
                 }
             });
         }
+
+        // Global Audio Alarm Buzzer Engine
+        window.playAlertBuzzer = function() {
+            if (localStorage.getItem('fids_sound_muted') === 'true') return;
+            try {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (!AudioCtx) return;
+                const ctx = new AudioCtx();
+                if (ctx.state === 'suspended') ctx.resume();
+                const now = ctx.currentTime;
+                const totalDuration = 2.2;
+
+                const osc1 = ctx.createOscillator();
+                const osc2 = ctx.createOscillator();
+                const osc3 = ctx.createOscillator();
+                
+                const filter = ctx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(3400, now);
+                filter.Q.setValueAtTime(3.8, now);
+
+                const gainNode = ctx.createGain();
+
+                osc1.type = 'sawtooth';
+                osc2.type = 'square';
+                osc3.type = 'sawtooth';
+
+                // 4 Continuous Warning Siren Waves
+                osc1.frequency.setValueAtTime(520, now);
+                osc1.frequency.exponentialRampToValueAtTime(1450, now + 0.28);
+                osc1.frequency.exponentialRampToValueAtTime(600, now + 0.55);
+                osc2.frequency.setValueAtTime(520, now);
+                osc2.frequency.exponentialRampToValueAtTime(1450, now + 0.28);
+                osc2.frequency.exponentialRampToValueAtTime(600, now + 0.55);
+
+                osc1.frequency.exponentialRampToValueAtTime(1500, now + 0.83);
+                osc1.frequency.exponentialRampToValueAtTime(620, now + 1.10);
+                osc2.frequency.exponentialRampToValueAtTime(1500, now + 0.83);
+                osc2.frequency.exponentialRampToValueAtTime(620, now + 1.10);
+
+                osc1.frequency.exponentialRampToValueAtTime(1550, now + 1.38);
+                osc1.frequency.exponentialRampToValueAtTime(640, now + 1.65);
+                osc2.frequency.exponentialRampToValueAtTime(1550, now + 1.38);
+                osc2.frequency.exponentialRampToValueAtTime(640, now + 1.65);
+
+                osc1.frequency.exponentialRampToValueAtTime(1580, now + 1.93);
+                osc1.frequency.exponentialRampToValueAtTime(500, now + 2.20);
+                osc2.frequency.exponentialRampToValueAtTime(1580, now + 1.93);
+                osc2.frequency.exponentialRampToValueAtTime(500, now + 2.20);
+
+                osc3.frequency.setValueAtTime(1040, now);
+                osc3.frequency.exponentialRampToValueAtTime(2900, now + 0.28);
+                osc3.frequency.exponentialRampToValueAtTime(1200, now + 0.55);
+                osc3.frequency.exponentialRampToValueAtTime(3000, now + 0.83);
+                osc3.frequency.exponentialRampToValueAtTime(1240, now + 1.10);
+                osc3.frequency.exponentialRampToValueAtTime(3100, now + 1.38);
+                osc3.frequency.exponentialRampToValueAtTime(1280, now + 1.65);
+                osc3.frequency.exponentialRampToValueAtTime(3160, now + 1.93);
+                osc3.frequency.exponentialRampToValueAtTime(1000, now + 2.20);
+
+                gainNode.gain.setValueAtTime(0.01, now);
+                gainNode.gain.linearRampToValueAtTime(0.95, now + 0.04);
+                gainNode.gain.setValueAtTime(0.95, now + 2.05);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + totalDuration);
+
+                osc1.connect(filter);
+                osc2.connect(filter);
+                osc3.connect(filter);
+                filter.connect(gainNode);
+                gainNode.connect(ctx.destination);
+
+                osc1.start(now);
+                osc2.start(now);
+                osc3.start(now);
+                osc1.stop(now + totalDuration);
+                osc2.stop(now + totalDuration);
+                osc3.stop(now + totalDuration);
+            } catch(e) {
+                console.warn('Global buzzer error:', e);
+            }
+        };
     });
 </script>
 

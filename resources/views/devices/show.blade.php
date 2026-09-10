@@ -346,6 +346,13 @@
                     `;
                     tbody.prepend(tr);
                 }
+
+                // Play buzzer alarm if status is Offline, Warning, or Maintenance
+                if (info.status === 'offline' || info.status === 'warning' || info.status === 'maintenance') {
+                    if (typeof window.playAlertBuzzer === 'function') {
+                        window.playAlertBuzzer();
+                    }
+                }
             }
         } catch (err) {
             console.error('Ping error:', err);
@@ -357,6 +364,14 @@
             icon.classList.remove('animate-spin');
         }
     }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        @if(session('success') && (str_contains(session('success'), 'MAINTENANCE') || str_contains(session('success'), 'Maintenance')))
+            if (typeof window.playAlertBuzzer === 'function') {
+                window.playAlertBuzzer();
+            }
+        @endif
+    });
 </script>
 @endpush
 

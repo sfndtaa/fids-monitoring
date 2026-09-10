@@ -194,10 +194,13 @@ class MonitoringController extends Controller
             ];
         });
 
+        $unreadNotifs = \App\Models\DeviceNotification::where('is_read', false)->count();
+
         return response()->json([
             'success' => true,
             'stats' => $stats,
             'devices' => $devices,
+            'unread_notifications' => $unreadNotifs,
             'timestamp' => now()->format('d M Y H:i:s'),
         ]);
     }

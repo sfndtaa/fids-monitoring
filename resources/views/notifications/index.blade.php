@@ -82,4 +82,16 @@
 
 </div>
 
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        @if($notifications->count() > 0)
+            if (typeof window.playAlertBuzzer === 'function') {
+                window.playAlertBuzzer();
+            }
+        @endif
+    });
+</script>
+@endpush
+
 @endsection

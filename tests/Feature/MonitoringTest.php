@@ -42,3 +42,26 @@ test('monitoring data endpoint returns json status', function () {
         'timestamp',
     ]);
 });
+
+test('authenticated user can toggle maintenance mode on device', function () {
+    $user = User::factory()->create();
+    $device = Device::create([
+        'device_name' => 'TEST_DEV_01',
+        'location' => 'GATE_1',
+        'ip_address' => '127.0.0.1',
+        'status' => 'online',
+        'subnet' => '255.255.255.0',
+        'gateway' => '192.168.1.1',
+    ]);
+
+    // Enter maintenance
+    $response = $this->actingAs($user)->post("/devices/{$device->id}/toggle-maintenance");
+    $response->assertRedirect();
+    
+    $device->refresh();
+    expect($device->status)->toBe('maintenance');
+    $this->assertDatabaseHas('device_notifications', [
+        'device_id' => $device->id,
+        'type' => 'maintenance',
+    ]);
+});

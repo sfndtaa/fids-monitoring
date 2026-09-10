@@ -692,7 +692,9 @@
         }, 1000);
     }
 
-    // Refresh status data from backend JSON feed (Visual updates only, NO sound)
+    let lastUnreadCount = null;
+
+    // Refresh status data from backend JSON feed
     async function refreshStatusData() {
         const btn = document.getElementById('btnRefreshStatus');
         const spinner = document.getElementById('refreshSpinner');
@@ -713,6 +715,25 @@
                 if (lastRefresh && data.timestamp) {
                     const timePart = data.timestamp.split(' ').pop();
                     lastRefresh.innerText = `[ Last Check: ${timePart || data.timestamp} ]`;
+                }
+
+                // If new notifications arrived, trigger buzzer sound
+                if (data.unread_notifications !== undefined) {
+                    if (lastUnreadCount !== null && data.unread_notifications > lastUnreadCount && !isSoundMuted) {
+                        playAlertChime();
+                    }
+                    lastUnreadCount = data.unread_notifications;
+
+                    // Update sidebar unread badge
+                    const notifBadge = document.getElementById('sidebarNotifBadge');
+                    if (notifBadge) {
+                        if (data.unread_notifications > 0) {
+                            notifBadge.innerText = data.unread_notifications;
+                            notifBadge.classList.remove('hidden');
+                        } else {
+                            notifBadge.classList.add('hidden');
+                        }
+                    }
                 }
             }
         } catch (err) {
@@ -834,6 +855,9 @@
             if (data.success && data.data) {
                 updateDeviceNodes([data.data]);
                 refreshStatusData();
+                if ((data.data.status === 'offline' || data.data.status === 'warning' || data.data.status === 'maintenance') && !isSoundMuted) {
+                    playAlertChime();
+                }
             }
         } catch (err) {
             console.error('Node ping error:', err);
@@ -863,7 +887,7 @@
         closePingModal();
     }
 
-    // BATCH PING SWEEP WITH SOUND TRIGGER RULE
+    // BATCH PING SWEEP (Ultra-responsive OS-level Parallel Pings)
     async function runBatchPingExecution() {
         if (isPingRunning) return;
 
@@ -893,7 +917,7 @@
         btn.disabled = true;
         label.innerText = 'Scanning Network...';
         icon.classList.add('animate-spin');
-        consoleBox.innerHTML = '<p class="text-blue-400 font-bold">[START] Sending ICMP ping requests to Airport LAN...</p>';
+        consoleBox.innerHTML = '<p class="text-blue-400 font-bold">[START] Sending parallel ICMP ping requests to Airport LAN...</p>';
 
         try {
             let allDevices = clientDevices;
@@ -917,81 +941,61 @@
             const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
             let processed = 0;
 
-            // Split all devices into chunks of 10
-            const chunks = [];
             for (let i = 0; i < total; i += chunkSize) {
-                chunks.push(allDevices.slice(i, i + chunkSize));
-            }
-
-            // Process chunks in concurrent batches of 2 parallel requests
-            const concurrency = 2;
-            for (let c = 0; c < chunks.length; c += concurrency) {
                 if (cancelPing) {
                     consoleBox.innerHTML += `<p class="text-amber-400">[CANCELLED] Ping sweep cancelled by user.</p>`;
                     break;
                 }
 
-                const currentBatch = chunks.slice(c, c + concurrency);
+                const chunk = allDevices.slice(i, i + chunkSize);
+                const chunkIds = chunk.map(d => d.id);
 
                 // Highlight nodes currently being scanned with active radar glow
-                currentBatch.forEach(chunk => {
-                    chunk.forEach(dev => {
-                        const node = document.getElementById(`node-device-${dev.id}`);
-                        if (node) {
-                            const svg = node.querySelector('.node-svg');
-                            if (svg) svg.classList.add('opacity-70', 'animate-pulse');
+                chunk.forEach(dev => {
+                    const node = document.getElementById(`node-device-${dev.id}`);
+                    if (node) {
+                        const svg = node.querySelector('.node-svg');
+                        if (svg) svg.classList.add('opacity-70', 'animate-pulse');
+                    }
+                });
+
+                const res = await fetch('/monitoring/ping-batch', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': token,
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        device_ids: chunkIds,
+                        timeout: 350
+                    })
+                });
+
+                const chunkData = await res.json();
+
+                if (chunkData.success && chunkData.results) {
+                    chunkData.results.forEach(resItem => {
+                        processed++;
+                        if (resItem.status === 'online') {
+                            onlineCount++;
+                            consoleBox.innerHTML += `<p class="text-emerald-400">[ONLINE] ${resItem.device_name} (${resItem.ip_address}) - ${resItem.response_time}ms</p>`;
+                        } else if (resItem.status === 'warning') {
+                            warningCount++;
+                            consoleBox.innerHTML += `<p class="text-amber-400">[WARN] ${resItem.device_name} (${resItem.ip_address}) - Latency ${resItem.response_time}ms</p>`;
+                        } else if (resItem.status === 'maintenance') {
+                            consoleBox.innerHTML += `<p class="text-slate-400">[MAINT] ${resItem.device_name} (${resItem.ip_address}) - Maintenance mode</p>`;
+                        } else {
+                            offlineCount++;
+                            consoleBox.innerHTML += `<p class="text-rose-400">[DOWN] ${resItem.device_name} (${resItem.ip_address}) - Timed out</p>`;
                         }
                     });
-                });
 
-                // Execute batch requests in parallel
-                const batchPromises = currentBatch.map(async (chunk) => {
-                    const chunkIds = chunk.map(d => d.id);
-                    try {
-                        const res = await fetch('/monitoring/ping-batch', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': token,
-                                'Accept': 'application/json',
-                            },
-                            body: JSON.stringify({
-                                device_ids: chunkIds,
-                                timeout: 400
-                            })
-                        });
-                        return await res.json();
-                    } catch (e) {
-                        return { success: false, error: e.message, results: [] };
+                    updateDeviceNodes(chunkData.results);
+                    if (chunkData.stats) {
+                        updateStatsCards(chunkData.stats);
                     }
-                });
-
-                const batchResponses = await Promise.all(batchPromises);
-
-                batchResponses.forEach(chunkData => {
-                    if (chunkData && chunkData.success && chunkData.results) {
-                        chunkData.results.forEach(resItem => {
-                            processed++;
-                            if (resItem.status === 'online') {
-                                onlineCount++;
-                                consoleBox.innerHTML += `<p class="text-emerald-400">[ONLINE] ${resItem.device_name} (${resItem.ip_address}) - ${resItem.response_time}ms</p>`;
-                            } else if (resItem.status === 'warning') {
-                                warningCount++;
-                                consoleBox.innerHTML += `<p class="text-amber-400">[WARN] ${resItem.device_name} (${resItem.ip_address}) - Latency ${resItem.response_time}ms</p>`;
-                            } else if (resItem.status === 'maintenance') {
-                                consoleBox.innerHTML += `<p class="text-slate-400">[MAINT] ${resItem.device_name} (${resItem.ip_address}) - Maintenance mode</p>`;
-                            } else {
-                                offlineCount++;
-                                consoleBox.innerHTML += `<p class="text-rose-400">[DOWN] ${resItem.device_name} (${resItem.ip_address}) - Timed out</p>`;
-                            }
-                        });
-
-                        updateDeviceNodes(chunkData.results);
-                        if (chunkData.stats) {
-                            updateStatsCards(chunkData.stats);
-                        }
-                    }
-                });
+                }
 
                 mOnline.innerText = onlineCount;
                 mWarning.innerText = warningCount;
@@ -1009,7 +1013,6 @@
 
             // RULE: Wait until the ENTIRE ping sweep has finished across all devices.
             // If one or more devices are Offline/Down/Alert (or Warning) -> Play notification sound ONCE.
-            // If all devices are Online/Normal -> Do not play sound.
             if ((offlineCount > 0 || warningCount > 0) && !isSoundMuted) {
                 playAlertChime();
             }

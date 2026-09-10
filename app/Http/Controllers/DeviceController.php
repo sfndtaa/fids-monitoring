@@ -87,6 +87,13 @@ class DeviceController extends Controller
             $pingResult = $pingService->pingDevice($device);
             $newStatus = $pingResult['status'];
 
+            DeviceNotification::create([
+                'device_id' => $device->id,
+                'type' => $newStatus === 'online' ? 'online' : ($newStatus === 'warning' ? 'warning' : 'offline'),
+                'message' => "Perangkat '{$device->device_name}' ({$device->ip_address}) pada lokasi '{$device->location}' telah SELESAI MAINTENANCE (Status Live: " . strtoupper($newStatus) . ").",
+                'is_read' => false,
+            ]);
+
             $message = "Perangkat '{$device->device_name}' berhasil dikeluarkan dari mode Maintenance. Status live saat ini: " . strtoupper($newStatus) . " (" . ($pingResult['response_time'] !== null ? $pingResult['response_time'] . ' ms' : 'Unreachable') . ").";
         } else {
             // Enter Maintenance
@@ -104,6 +111,7 @@ class DeviceController extends Controller
 
             DeviceNotification::create([
                 'device_id' => $device->id,
+                'type' => 'maintenance',
                 'message' => "Perangkat '{$device->device_name}' ({$device->ip_address}) pada lokasi '{$device->location}' telah ditandai dalam status MAINTENANCE / Pemeliharaan Teknisi.",
                 'is_read' => false,
             ]);
