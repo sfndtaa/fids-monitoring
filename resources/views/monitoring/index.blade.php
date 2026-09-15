@@ -5,25 +5,69 @@
 <div class="space-y-3">
 
     <!-- Top Toolbar (Angkasa Pura Light Theme) -->
-    <div class="bg-white text-slate-800 rounded-xl shadow-xs border border-slate-200 px-4 py-2.5">
-        <form method="GET" action="{{ route('monitoring') }}" id="filterForm" class="flex flex-wrap items-center justify-between gap-3 text-xs">
+    <div class="bg-white text-slate-800 rounded-xl shadow-xs border border-slate-200 px-4 py-3">
+        <form method="GET" action="{{ route('monitoring') }}" id="filterForm" class="flex flex-col gap-2.5 text-xs">
             
-            <!-- Left: Live Clock & Auto-refresh status -->
-            <div class="flex flex-wrap items-center gap-2 font-mono text-[11px]">
-                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200">
-                    <span class="w-1.5 h-1.5 rounded-full bg-[#0072bc] animate-pulse"></span>
-                    <span id="lastRefreshDisplay">[ Last Check: {{ now()->format('H:i:s') }} ]</span>
-                </span>
-                <span class="text-slate-500 hidden sm:inline">
-                    [ Auto-Refresh in <span id="autoRefreshCountdown" class="text-[#0072bc] font-bold">45</span>s ]
-                </span>
+            <!-- Tier 1: System Info (Live Clock / Auto-Refresh) & Primary Actions (Sound, Refresh, Scan) -->
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                
+                <!-- Left: Live Clock & Auto-refresh status -->
+                <div class="flex items-center gap-2 font-mono text-[11px] select-none shrink-0">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 border border-slate-200 tabular-nums">
+                        <span class="w-2 h-2 rounded-full bg-[#0072bc] animate-pulse"></span>
+                        <span id="lastRefreshDisplay" class="font-semibold">[ Jam: {{ now()->format('H:i:s') }} ]</span>
+                    </span>
+                    <span class="text-slate-500 tabular-nums hidden sm:inline px-1">
+                        [ Auto-Refresh in <span id="autoRefreshCountdown" class="text-[#0072bc] font-bold inline-block min-w-[2ch] text-center">45</span>s ]
+                    </span>
+                </div>
+
+                <!-- Right: Action Buttons & Sound Control -->
+                <div class="flex items-center gap-2 shrink-0">
+                    
+                    <!-- Sound Control Toggle (Muted / Unmuted) -->
+                    <button
+                        type="button"
+                        id="btnToggleSound"
+                        onclick="toggleSoundControl()"
+                        class="px-2.5 py-1 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-[11px] font-semibold transition flex items-center gap-1.5 shadow-2xs"
+                        title="Toggle Alert Notification Sound">
+                        <span id="soundIcon">🔊</span>
+                        <span id="soundLabel">Unmuted</span>
+                    </button>
+
+                    <!-- Refresh Button -->
+                    <button
+                        type="button"
+                        id="btnRefreshStatus"
+                        onclick="refreshStatusData()"
+                        class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-medium transition flex items-center gap-1 border border-slate-200"
+                        title="Reload latest status from database">
+                        <svg id="refreshSpinner" xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                        </svg>
+                        <span>Refresh</span>
+                    </button>
+
+                    <!-- Ping Sweep Button (Angkasa Pura Blue) -->
+                    <button
+                        type="button"
+                        id="btnStartBatchPing"
+                        onclick="openPingModal()"
+                        class="px-3.5 py-1 rounded-lg bg-[#0072bc] hover:bg-[#005b9f] text-white text-[11px] font-bold transition flex items-center gap-1.5 shadow-xs">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
+                        <span>Ping Sweep (Scan LAN)</span>
+                    </button>
+                </div>
             </div>
 
-            <!-- Middle: Filters & View Switcher -->
-            <div class="flex flex-wrap items-center gap-2">
+            <!-- Tier 2: View Switcher (Left) & Filters / Search (Right) -->
+            <div class="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2.5">
                 
-                <!-- View Mode Switcher (Tree View vs Card Grid View) -->
-                <div class="inline-flex p-0.5 bg-slate-100 rounded-lg border border-slate-200">
+                <!-- Left: View Mode Switcher (Tree View vs Card Grid View) -->
+                <div class="inline-flex p-0.5 bg-slate-100 rounded-lg border border-slate-200 shrink-0">
                     <button
                         type="button"
                         onclick="setViewMode('tree')"
@@ -48,89 +92,52 @@
                 </div>
                 <input type="hidden" name="view" id="viewModeInput" value="{{ $viewMode }}">
 
-                <!-- Status Filter -->
-                <select
-                    name="status"
-                    id="statusSelect"
-                    onchange="document.getElementById('filterForm').submit()"
-                    class="text-[11px] font-medium rounded-lg border border-slate-300 bg-white text-slate-700 px-2.5 py-1 focus:outline-none focus:ring-1 focus:ring-[#0072bc]">
-                    <option value="all" {{ $statusFilter === 'all' ? 'selected' : '' }}>Status: All ({{ $stats['total'] }})</option>
-                    <option value="online" {{ $statusFilter === 'online' ? 'selected' : '' }}>Online ({{ $stats['online'] }})</option>
-                    <option value="offline" {{ $statusFilter === 'offline' ? 'selected' : '' }}>Offline ({{ $stats['offline'] }})</option>
-                    <option value="warning" {{ $statusFilter === 'warning' ? 'selected' : '' }}>Warning ({{ $stats['warning'] }})</option>
-                    <option value="maintenance" {{ $statusFilter === 'maintenance' ? 'selected' : '' }}>Maintenance ({{ $stats['maintenance'] }})</option>
-                </select>
+                <!-- Right: Filters & Search Input -->
+                <div class="flex flex-wrap items-center gap-2">
+                    <!-- Status Filter -->
+                    <select
+                        name="status"
+                        id="statusSelect"
+                        onchange="document.getElementById('filterForm').submit()"
+                        class="text-[11px] font-medium rounded-lg border border-slate-300 bg-white text-slate-700 pl-2.5 pr-8 py-1 focus:outline-none focus:ring-1 focus:ring-[#0072bc] cursor-pointer">
+                        <option value="all" {{ $statusFilter === 'all' ? 'selected' : '' }}>Status: All ({{ $stats['total'] }})</option>
+                        <option value="online" {{ $statusFilter === 'online' ? 'selected' : '' }}>Online ({{ $stats['online'] }})</option>
+                        <option value="offline" {{ $statusFilter === 'offline' ? 'selected' : '' }}>Offline ({{ $stats['offline'] }})</option>
+                        <option value="warning" {{ $statusFilter === 'warning' ? 'selected' : '' }}>Warning ({{ $stats['warning'] }})</option>
+                        <option value="maintenance" {{ $statusFilter === 'maintenance' ? 'selected' : '' }}>Maintenance ({{ $stats['maintenance'] }})</option>
+                    </select>
 
-                <!-- Branch / Location Filter -->
-                <select
-                    name="location"
-                    id="locationSelect"
-                    onchange="document.getElementById('filterForm').submit()"
-                    class="text-[11px] font-medium rounded-lg border border-slate-300 bg-white text-slate-700 px-2.5 py-1 focus:outline-none focus:ring-1 focus:ring-[#0072bc] max-w-[170px] truncate">
-                    <option value="all" {{ $locationFilter === 'all' ? 'selected' : '' }}>Branch: All Locations</option>
-                    @foreach($locations as $loc)
-                        <option value="{{ $loc }}" {{ $locationFilter === $loc ? 'selected' : '' }}>
-                            {{ $loc }}
-                        </option>
-                    @endforeach
-                </select>
+                    <!-- Branch / Location Filter -->
+                    <select
+                        name="location"
+                        id="locationSelect"
+                        onchange="document.getElementById('filterForm').submit()"
+                        class="text-[11px] font-medium rounded-lg border border-slate-300 bg-white text-slate-700 pl-2.5 pr-8 py-1 focus:outline-none focus:ring-1 focus:ring-[#0072bc] max-w-[180px] truncate cursor-pointer">
+                        <option value="all" {{ $locationFilter === 'all' ? 'selected' : '' }}>Branch: All Locations</option>
+                        @foreach($locations as $loc)
+                            <option value="{{ $loc }}" {{ $locationFilter === $loc ? 'selected' : '' }}>
+                                {{ $loc }}
+                            </option>
+                        @endforeach
+                    </select>
 
-                <!-- Search Input -->
-                <div class="relative">
-                    <input
-                        type="text"
-                        name="search"
-                        id="searchInput"
-                        value="{{ $search }}"
-                        placeholder="Search device/IP..."
-                        class="pl-7 pr-2.5 py-1 text-[11px] rounded-lg border border-slate-300 bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-[#0072bc] w-32 sm:w-40">
-                    <span class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none text-slate-400">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                        </svg>
-                    </span>
+                    <!-- Search Input -->
+                    <div class="relative">
+                        <input
+                            type="text"
+                            name="search"
+                            id="searchInput"
+                            value="{{ $search }}"
+                            placeholder="Search device/IP..."
+                            class="pl-7 pr-2.5 py-1 text-[11px] rounded-lg border border-slate-300 bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-[#0072bc] w-36 sm:w-44">
+                        <span class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none text-slate-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                        </span>
+                    </div>
                 </div>
 
-            </div>
-
-            <!-- Right: Action Buttons & Sound Control -->
-            <div class="flex items-center gap-2">
-                
-                <!-- Sound Control Toggle (Muted / Unmuted) -->
-                <button
-                    type="button"
-                    id="btnToggleSound"
-                    onclick="toggleSoundControl()"
-                    class="px-2.5 py-1 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-[11px] font-semibold transition flex items-center gap-1.5 shadow-2xs"
-                    title="Toggle Alert Notification Sound">
-                    <span id="soundIcon">🔊</span>
-                    <span id="soundLabel">Unmuted</span>
-                </button>
-
-                <!-- Refresh Button -->
-                <button
-                    type="button"
-                    id="btnRefreshStatus"
-                    onclick="refreshStatusData()"
-                    class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-medium transition flex items-center gap-1 border border-slate-200"
-                    title="Reload latest status from database">
-                    <svg id="refreshSpinner" xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                    </svg>
-                    <span>Refresh</span>
-                </button>
-
-                <!-- Ping Sweep Button (Angkasa Pura Blue) -->
-                <button
-                    type="button"
-                    id="btnStartBatchPing"
-                    onclick="openPingModal()"
-                    class="px-3.5 py-1 rounded-lg bg-[#0072bc] hover:bg-[#005b9f] text-white text-[11px] font-bold transition flex items-center gap-1.5 shadow-xs">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                    </svg>
-                    <span>Ping Sweep (Scan LAN)</span>
-                </button>
             </div>
 
         </form>
@@ -354,7 +361,7 @@
                         <div class="flex justify-between text-[10px]">
                             <span class="text-slate-400">Last Checked:</span>
                             <span class="card-lastping text-slate-500">
-                                {{ $device->last_ping ? \Carbon\Carbon::parse($device->last_ping)->format('d M H:i') : 'Never' }}
+                                {{ $device->last_ping ? \Carbon\Carbon::parse($device->last_ping)->format('H:i:s') : 'Never' }}
                             </span>
                         </div>
                     </div>
@@ -558,89 +565,8 @@
 
     function playAlertChime() {
         if (isSoundMuted) return;
-
-        try {
-            const ctx = getAudioContext();
-            if (!ctx) return;
-
-            const now = ctx.currentTime;
-            const totalDuration = 2.2; // Durasi lebih panjang (~2.2 detik)
-
-            // Triple Oscillator setup for authentic metallic alarm horn
-            const osc1 = ctx.createOscillator();
-            const osc2 = ctx.createOscillator();
-            const osc3 = ctx.createOscillator();
-            
-            // Resonant Filter for acoustic horn buzzer sound
-            const filter = ctx.createBiquadFilter();
-            filter.type = 'lowpass';
-            filter.frequency.setValueAtTime(3400, now);
-            filter.Q.setValueAtTime(3.8, now);
-
-            const gainNode = ctx.createGain();
-
-            osc1.type = 'sawtooth';
-            osc2.type = 'square';
-            osc3.type = 'sawtooth';
-
-            // 4 Continuous Alarm Cycles (0.55s each)
-            // Cycle 1 (0.0s -> 0.55s)
-            osc1.frequency.setValueAtTime(520, now);
-            osc1.frequency.exponentialRampToValueAtTime(1450, now + 0.28);
-            osc1.frequency.exponentialRampToValueAtTime(600, now + 0.55);
-            osc2.frequency.setValueAtTime(520, now);
-            osc2.frequency.exponentialRampToValueAtTime(1450, now + 0.28);
-            osc2.frequency.exponentialRampToValueAtTime(600, now + 0.55);
-
-            // Cycle 2 (0.55s -> 1.10s)
-            osc1.frequency.exponentialRampToValueAtTime(1500, now + 0.83);
-            osc1.frequency.exponentialRampToValueAtTime(620, now + 1.10);
-            osc2.frequency.exponentialRampToValueAtTime(1500, now + 0.83);
-            osc2.frequency.exponentialRampToValueAtTime(620, now + 1.10);
-
-            // Cycle 3 (1.10s -> 1.65s)
-            osc1.frequency.exponentialRampToValueAtTime(1550, now + 1.38);
-            osc1.frequency.exponentialRampToValueAtTime(640, now + 1.65);
-            osc2.frequency.exponentialRampToValueAtTime(1550, now + 1.38);
-            osc2.frequency.exponentialRampToValueAtTime(640, now + 1.65);
-
-            // Cycle 4 (1.65s -> 2.20s)
-            osc1.frequency.exponentialRampToValueAtTime(1580, now + 1.93);
-            osc1.frequency.exponentialRampToValueAtTime(500, now + 2.20);
-            osc2.frequency.exponentialRampToValueAtTime(1580, now + 1.93);
-            osc2.frequency.exponentialRampToValueAtTime(500, now + 2.20);
-
-            // Metallic 2nd Harmonic Layer (2x Frequency)
-            osc3.frequency.setValueAtTime(1040, now);
-            osc3.frequency.exponentialRampToValueAtTime(2900, now + 0.28);
-            osc3.frequency.exponentialRampToValueAtTime(1200, now + 0.55);
-            osc3.frequency.exponentialRampToValueAtTime(3000, now + 0.83);
-            osc3.frequency.exponentialRampToValueAtTime(1240, now + 1.10);
-            osc3.frequency.exponentialRampToValueAtTime(3100, now + 1.38);
-            osc3.frequency.exponentialRampToValueAtTime(1280, now + 1.65);
-            osc3.frequency.exponentialRampToValueAtTime(3160, now + 1.93);
-            osc3.frequency.exponentialRampToValueAtTime(1000, now + 2.20);
-
-            // High Volume Output (Gain 0.95 - Nyaring & Tegas)
-            gainNode.gain.setValueAtTime(0.01, now);
-            gainNode.gain.linearRampToValueAtTime(0.95, now + 0.04);
-            gainNode.gain.setValueAtTime(0.95, now + 2.05);
-            gainNode.gain.exponentialRampToValueAtTime(0.001, now + totalDuration);
-
-            osc1.connect(filter);
-            osc2.connect(filter);
-            osc3.connect(filter);
-            filter.connect(gainNode);
-            gainNode.connect(ctx.destination);
-
-            osc1.start(now);
-            osc2.start(now);
-            osc3.start(now);
-            osc1.stop(now + totalDuration);
-            osc2.stop(now + totalDuration);
-            osc3.stop(now + totalDuration);
-        } catch (e) {
-            console.warn('Audio buzzer alert error:', e);
+        if (typeof window.playAlertBuzzer === 'function') {
+            window.playAlertBuzzer();
         }
     }
 
@@ -714,25 +640,31 @@
                 updateDeviceNodes(data.devices);
                 if (lastRefresh && data.timestamp) {
                     const timePart = data.timestamp.split(' ').pop();
-                    lastRefresh.innerText = `[ Last Check: ${timePart || data.timestamp} ]`;
+                    lastRefresh.innerText = `[ Jam: ${timePart || data.timestamp} ]`;
                 }
 
-                // If new notifications arrived, trigger buzzer sound
+                // If new notifications arrived or unread exist on refresh, trigger buzzer sound
                 if (data.unread_notifications !== undefined) {
-                    if (lastUnreadCount !== null && data.unread_notifications > lastUnreadCount && !isSoundMuted) {
+                    if (data.unread_notifications > 0 && (lastUnreadCount === null || data.unread_notifications > lastUnreadCount) && !isSoundMuted) {
                         playAlertChime();
                     }
                     lastUnreadCount = data.unread_notifications;
 
-                    // Update sidebar unread badge
-                    const notifBadge = document.getElementById('sidebarNotifBadge');
-                    if (notifBadge) {
-                        if (data.unread_notifications > 0) {
-                            notifBadge.innerText = data.unread_notifications;
-                            notifBadge.classList.remove('hidden');
-                        } else {
-                            notifBadge.classList.add('hidden');
-                        }
+                    // Update badges
+                    const dot = document.getElementById('sidebarNotifDot');
+                    const sideBadge = document.getElementById('sidebarNotifBadge');
+                    const headBadge = document.getElementById('headerNotifBadge');
+                    const hasUnread = data.unread_notifications > 0;
+                    const textVal = data.unread_notifications > 99 ? '99+' : data.unread_notifications;
+
+                    if (dot) dot.classList.toggle('hidden', !hasUnread);
+                    if (sideBadge) {
+                        sideBadge.innerText = textVal;
+                        sideBadge.classList.toggle('hidden', !hasUnread);
+                    }
+                    if (headBadge) {
+                        headBadge.innerText = textVal;
+                        headBadge.classList.toggle('hidden', !hasUnread);
                     }
                 }
             }
@@ -822,7 +754,7 @@
 
                 const cardLastPing = card.querySelector('.card-lastping');
                 if (cardLastPing && dev.last_ping) {
-                    cardLastPing.innerText = dev.last_ping;
+                    cardLastPing.innerText = dev.last_ping.includes(' ') ? dev.last_ping.split(' ').pop() : dev.last_ping;
                 }
             }
         });
@@ -855,8 +787,28 @@
             if (data.success && data.data) {
                 updateDeviceNodes([data.data]);
                 refreshStatusData();
-                if ((data.data.status === 'offline' || data.data.status === 'warning' || data.data.status === 'maintenance') && !isSoundMuted) {
-                    playAlertChime();
+                if (data.data.status === 'offline') {
+                    if (typeof window.playAlertBuzzer === 'function') {
+                        window.playAlertBuzzer();
+                    }
+                    if (typeof window.showFloatingNotificationToast === 'function') {
+                        window.showFloatingNotificationToast({
+                            type: 'offline',
+                            message: `Perangkat '${data.data.device_name}' (${data.data.ip_address}) pada lokasi '${data.data.location || 'Airport'}' terdeteksi OFFLINE / Terputus.`,
+                            created_at: 'Just now'
+                        }, false);
+                    }
+                } else if (data.data.status === 'warning') {
+                    if (typeof window.playAlertBuzzer === 'function') {
+                        window.playAlertBuzzer();
+                    }
+                    if (typeof window.showFloatingNotificationToast === 'function') {
+                        window.showFloatingNotificationToast({
+                            type: 'warning',
+                            message: `Perangkat '${data.data.device_name}' (${data.data.ip_address}) mengalami lonjakan latency tinggi (${data.data.response_time} ms).`,
+                            created_at: 'Just now'
+                        }, false);
+                    }
                 }
             }
         } catch (err) {
@@ -872,6 +824,11 @@
 
     // Modal controls
     function openPingModal() {
+        const audioEl = document.getElementById('fidsGlobalAudio');
+        if (audioEl) audioEl.load();
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (AudioCtx && !window._audioCtx) window._audioCtx = new AudioCtx();
+        if (window._audioCtx && window._audioCtx.state === 'suspended') window._audioCtx.resume();
         document.getElementById('pingModal').classList.remove('hidden');
     }
 
@@ -890,6 +847,12 @@
     // BATCH PING SWEEP (Ultra-responsive OS-level Parallel Pings)
     async function runBatchPingExecution() {
         if (isPingRunning) return;
+
+        const audioEl = document.getElementById('fidsGlobalAudio');
+        if (audioEl) audioEl.load();
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (AudioCtx && !window._audioCtx) window._audioCtx = new AudioCtx();
+        if (window._audioCtx && window._audioCtx.state === 'suspended') window._audioCtx.resume();
 
         isPingRunning = true;
         cancelPing = false;
@@ -937,7 +900,7 @@
 
             consoleBox.innerHTML += `<p class="text-slate-300">[INFO] Loaded ${total} devices. Executing high-speed parallel ICMP ping sweep...</p>`;
 
-            const chunkSize = 10;
+            const chunkSize = 25;
             const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
             let processed = 0;
 
@@ -968,7 +931,7 @@
                     },
                     body: JSON.stringify({
                         device_ids: chunkIds,
-                        timeout: 350
+                        timeout: 300
                     })
                 });
 
@@ -1011,10 +974,19 @@
             consoleBox.innerHTML += `<p class="text-emerald-400 font-bold mt-1">[COMPLETE] Scan finished: ${onlineCount} Online, ${warningCount} Warning, ${offlineCount} Offline.</p>`;
             consoleBox.scrollTop = consoleBox.scrollHeight;
 
-            // RULE: Wait until the ENTIRE ping sweep has finished across all devices.
-            // If one or more devices are Offline/Down/Alert (or Warning) -> Play notification sound ONCE.
-            if ((offlineCount > 0 || warningCount > 0) && !isSoundMuted) {
-                playAlertChime();
+            // RULE: When scan finishes, if one or more devices are Offline/Alert (or Warning) -> Play alert sound & show floating notification toast
+            if (offlineCount > 0 || warningCount > 0) {
+                consoleBox.innerHTML += `<p class="text-rose-400 font-bold">[ALERT] ${offlineCount} offline device(s) detected. Playing alert buzzer sound...</p>`;
+                if (typeof window.playAlertBuzzer === 'function') {
+                    window.playAlertBuzzer();
+                }
+                if (typeof window.showFloatingNotificationToast === 'function') {
+                    window.showFloatingNotificationToast({
+                        type: 'offline',
+                        message: `Hasil Ping Sweep: Terdeteksi ${offlineCount} perangkat OFFLINE / Terputus dari jaringan Airport LAN.`,
+                        created_at: 'Just now'
+                    }, false);
+                }
             }
 
             refreshStatusData();
@@ -1030,8 +1002,24 @@
         }
     }
 
+    function startLiveClock() {
+        const lastRefresh = document.getElementById('lastRefreshDisplay');
+        function updateClock() {
+            if (lastRefresh) {
+                const now = new Date();
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const seconds = String(now.getSeconds()).padStart(2, '0');
+                lastRefresh.innerText = `[ Jam: ${hours}:${minutes}:${seconds} ]`;
+            }
+        }
+        updateClock();
+        setInterval(updateClock, 1000);
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         initSoundUI();
+        startLiveClock();
         startAutoRefreshCountdown();
     });
 </script>

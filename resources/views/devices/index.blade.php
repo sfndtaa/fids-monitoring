@@ -42,7 +42,7 @@
 
         <select
             name="location"
-            class="text-xs rounded-lg border border-slate-300 px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#0072bc] bg-white text-slate-700">
+            class="text-xs rounded-lg border border-slate-300 pl-3 pr-8 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#0072bc] bg-white text-slate-700 cursor-pointer">
             <option value="">All Locations / Branches</option>
             @foreach($locations as $location)
                 <option
@@ -124,7 +124,7 @@
                         </td>
 
                         <td class="px-4 py-3 text-center text-slate-500 font-mono">
-                            {{ $device->last_ping ? \Carbon\Carbon::parse($device->last_ping)->format('d M Y H:i:s') : 'Never' }}
+                            {{ $device->last_ping ? \Carbon\Carbon::parse($device->last_ping)->format('H:i:s') : 'Never' }}
                         </td>
 
                         <td class="px-4 py-3 text-center" onclick="event.stopPropagation()">

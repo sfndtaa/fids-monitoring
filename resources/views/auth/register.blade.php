@@ -4,9 +4,9 @@
         
         <!-- Header & Logo -->
         <div class="text-center space-y-2">
-            <img src="{{ asset('images/angkasapura-logo.jpg') }}" alt="Angkasa Pura | Airports" class="h-10 mx-auto object-contain">
+            <img src="{{ asset('images/injourney-logo.png') }}" alt="InJourney Airports" class="h-12 mx-auto object-contain">
             <p class="text-xs font-bold text-[#0072bc] tracking-wider uppercase">
-                Daftar Akun Baru
+                FIDS Monitoring System
             </p>
         </div>
 

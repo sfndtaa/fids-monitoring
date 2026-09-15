@@ -115,27 +115,28 @@ class PingService
             'checked_at' => $now,
         ]);
 
-        // Trigger notification if device status changes
-        if ($oldStatus !== $newStatus) {
+        // Trigger notification if device status changes or is offline without unread notification
+        $hasUnreadOffline = DeviceNotification::where('device_id', $device->id)->where('is_read', false)->where('type', 'offline')->exists();
+        if ($oldStatus !== $newStatus || ($newStatus === 'offline' && !$hasUnreadOffline)) {
             if ($newStatus === 'offline') {
                 DeviceNotification::create([
                     'device_id' => $device->id,
                     'type' => 'offline',
-                    'message' => "Device '{$device->device_name}' ({$device->ip_address}) pada lokasi '{$device->location}' terputus / offline.",
+                    'message' => "Perangkat '{$device->device_name}' ({$device->ip_address}) pada lokasi '{$device->location}' terputus / OFFLINE.",
                     'is_read' => false,
                 ]);
             } elseif ($newStatus === 'warning') {
                 DeviceNotification::create([
                     'device_id' => $device->id,
                     'type' => 'warning',
-                    'message' => "Device '{$device->device_name}' ({$device->ip_address}) pada lokasi '{$device->location}' mengalami lonjakan latency tinggi ({$responseTime} ms).",
+                    'message' => "Perangkat '{$device->device_name}' ({$device->ip_address}) pada lokasi '{$device->location}' mengalami lonjakan latency tinggi ({$responseTime} ms).",
                     'is_read' => false,
                 ]);
             } elseif ($oldStatus === 'offline' && $newStatus === 'online') {
                 DeviceNotification::create([
                     'device_id' => $device->id,
                     'type' => 'online',
-                    'message' => "Device '{$device->device_name}' ({$device->ip_address}) pada lokasi '{$device->location}' kembali NORMAL / Online ({$responseTime} ms).",
+                    'message' => "Perangkat '{$device->device_name}' ({$device->ip_address}) pada lokasi '{$device->location}' kembali NORMAL / Online ({$responseTime} ms).",
                     'is_read' => false,
                 ]);
             }
@@ -149,7 +150,7 @@ class PingService
             'status' => $newStatus,
             'old_status' => $oldStatus,
             'response_time' => $responseTime,
-            'last_ping' => $now->format('d M Y H:i:s'),
+            'last_ping' => $now->format('H:i:s'),
             'last_ping_human' => $now->diffForHumans(),
             'success' => $result['success'],
         ];
@@ -276,27 +277,28 @@ class PingService
                 'checked_at' => $now,
             ]);
 
-            // Create notification on status changes
-            if ($oldStatus !== $newStatus) {
+            // Create notification on status changes or when offline without unread notification
+            $hasUnreadOffline = DeviceNotification::where('device_id', $device->id)->where('is_read', false)->where('type', 'offline')->exists();
+            if ($oldStatus !== $newStatus || ($newStatus === 'offline' && !$hasUnreadOffline)) {
                 if ($newStatus === 'offline') {
                     DeviceNotification::create([
                         'device_id' => $device->id,
                         'type' => 'offline',
-                        'message' => "Device '{$device->device_name}' ({$device->ip_address}) pada lokasi '{$device->location}' terputus / offline.",
+                        'message' => "Perangkat '{$device->device_name}' ({$device->ip_address}) pada lokasi '{$device->location}' terputus / OFFLINE.",
                         'is_read' => false,
                     ]);
                 } elseif ($newStatus === 'warning') {
                     DeviceNotification::create([
                         'device_id' => $device->id,
                         'type' => 'warning',
-                        'message' => "Device '{$device->device_name}' ({$device->ip_address}) pada lokasi '{$device->location}' mengalami lonjakan latency tinggi ({$responseTime} ms).",
+                        'message' => "Perangkat '{$device->device_name}' ({$device->ip_address}) pada lokasi '{$device->location}' mengalami lonjakan latency tinggi ({$responseTime} ms).",
                         'is_read' => false,
                     ]);
                 } elseif ($oldStatus === 'offline' && $newStatus === 'online') {
                     DeviceNotification::create([
                         'device_id' => $device->id,
                         'type' => 'online',
-                        'message' => "Device '{$device->device_name}' ({$device->ip_address}) pada lokasi '{$device->location}' kembali NORMAL / Online ({$responseTime} ms).",
+                        'message' => "Perangkat '{$device->device_name}' ({$device->ip_address}) pada lokasi '{$device->location}' kembali NORMAL / Online ({$responseTime} ms).",
                         'is_read' => false,
                     ]);
                 }
@@ -310,7 +312,7 @@ class PingService
                 'status' => $newStatus,
                 'old_status' => $oldStatus,
                 'response_time' => $responseTime,
-                'last_ping' => $now->format('d M Y H:i:s'),
+                'last_ping' => $now->format('H:i:s'),
                 'last_ping_human' => $now->diffForHumans(),
                 'success' => $isSuccess,
             ];

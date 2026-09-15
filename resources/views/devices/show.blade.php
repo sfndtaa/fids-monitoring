@@ -131,7 +131,7 @@
                 <div class="border-l border-white/20 pl-4">
                     <span class="text-[10px] text-blue-200 block uppercase">Last Checked</span>
                     <span id="deviceLastPing" class="text-xs font-medium text-white">
-                        {{ $device->last_ping ? \Carbon\Carbon::parse($device->last_ping)->format('d M Y H:i:s') : 'Never' }}
+                        {{ $device->last_ping ? \Carbon\Carbon::parse($device->last_ping)->format('H:i:s') : 'Never' }}
                     </span>
                 </div>
             </div>
@@ -347,10 +347,28 @@
                     tbody.prepend(tr);
                 }
 
-                // Play buzzer alarm if status is Offline, Warning, or Maintenance
-                if (info.status === 'offline' || info.status === 'warning' || info.status === 'maintenance') {
+                // Play buzzer alarm & show floating toast if status is Offline or Warning
+                if (info.status === 'offline') {
                     if (typeof window.playAlertBuzzer === 'function') {
                         window.playAlertBuzzer();
+                    }
+                    if (typeof window.showFloatingNotificationToast === 'function') {
+                        window.showFloatingNotificationToast({
+                            type: 'offline',
+                            message: `Perangkat '${info.device_name}' (${info.ip_address}) pada lokasi '${info.location || 'Airport'}' terdeteksi OFFLINE / Terputus.`,
+                            created_at: 'Just now'
+                        }, false);
+                    }
+                } else if (info.status === 'warning') {
+                    if (typeof window.playAlertBuzzer === 'function') {
+                        window.playAlertBuzzer();
+                    }
+                    if (typeof window.showFloatingNotificationToast === 'function') {
+                        window.showFloatingNotificationToast({
+                            type: 'warning',
+                            message: `Perangkat '${info.device_name}' (${info.ip_address}) mengalami lonjakan latency tinggi (${info.response_time} ms).`,
+                            created_at: 'Just now'
+                        }, false);
                     }
                 }
             }

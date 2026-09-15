@@ -94,6 +94,7 @@ class DeviceController extends Controller
                 'is_read' => false,
             ]);
 
+            $action = 'completed';
             $message = "Perangkat '{$device->device_name}' berhasil dikeluarkan dari mode Maintenance. Status live saat ini: " . strtoupper($newStatus) . " (" . ($pingResult['response_time'] !== null ? $pingResult['response_time'] . ' ms' : 'Unreachable') . ").";
         } else {
             // Enter Maintenance
@@ -116,18 +117,28 @@ class DeviceController extends Controller
                 'is_read' => false,
             ]);
 
+            $action = 'entered';
             $message = "Perangkat '{$device->device_name}' berhasil dialihkan ke status MAINTENANCE / Pemeliharaan.";
         }
 
         if ($request->wantsJson()) {
             return response()->json([
                 'success' => true,
+                'action' => $action,
                 'message' => $message,
+                'device_name' => $device->device_name,
+                'ip_address' => $device->ip_address,
+                'location' => $device->location,
                 'status' => $device->status,
                 'response_time' => $device->response_time,
             ]);
         }
 
-        return back()->with('success', $message);
+        return back()
+            ->with('success', $message)
+            ->with('maintenance_action', $action)
+            ->with('maintenance_device', $device->device_name)
+            ->with('maintenance_ip', $device->ip_address)
+            ->with('maintenance_location', $device->location);
     }
 }

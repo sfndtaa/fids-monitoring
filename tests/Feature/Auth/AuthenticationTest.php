@@ -6,7 +6,7 @@ test('login screen can be rendered', function () {
     $response = $this->get('/login');
 
     $response->assertStatus(200);
-    $response->assertSee('Angkasa Pura');
+    $response->assertSee('InJourney Airports');
     $response->assertSee('Ingat saya');
     $response->assertHeader('X-Frame-Options', 'SAMEORIGIN');
     $response->assertHeader('X-Content-Type-Options', 'nosniff');

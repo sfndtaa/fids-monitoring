@@ -73,6 +73,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index'])
         ->name('notifications');
 
+    Route::get('/notifications/unread', [NotificationController::class, 'unread'])
+        ->name('notifications.unread');
+
 
     // Import
     Route::get('/import', [ImportController::class, 'index'])

@@ -188,7 +188,7 @@ class MonitoringController extends Controller
                 'gateway' => $d->gateway,
                 'status' => $d->status,
                 'response_time' => $d->response_time,
-                'last_ping' => $d->last_ping ? $d->last_ping->format('d M Y H:i:s') : null,
+                'last_ping' => $d->last_ping ? $d->last_ping->format('H:i:s') : null,
                 'last_ping_human' => $d->last_ping ? $d->last_ping->diffForHumans() : 'Never',
                 'url' => route('devices.show', $d->id),
             ];
@@ -201,7 +201,7 @@ class MonitoringController extends Controller
             'stats' => $stats,
             'devices' => $devices,
             'unread_notifications' => $unreadNotifs,
-            'timestamp' => now()->format('d M Y H:i:s'),
+            'timestamp' => now()->format('H:i:s'),
         ]);
     }
 }

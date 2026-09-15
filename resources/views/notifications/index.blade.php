@@ -28,7 +28,7 @@
 
                 <tbody class="divide-y divide-slate-100">
                     @forelse($notifications as $notification)
-                    <tr class="hover:bg-slate-50 transition">
+                    <tr onclick="if(typeof window.playAlertBuzzer === 'function') window.playAlertBuzzer();" class="hover:bg-slate-50 transition cursor-pointer">
                         <td class="px-4 py-3 font-bold text-slate-800">
                             {{ optional($notification->device)->device_name ?? '-' }}
                         </td>
@@ -47,7 +47,7 @@
                                     Warning
                                 </span>
                             @elseif($notification->type == 'maintenance')
-                                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-slate-100 text-slate-700 border border-slate-200">
+                                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-amber-100 text-amber-800 border border-amber-200">
                                     Maintenance
                                 </span>
                             @else
